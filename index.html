@@ -7,101 +7,40 @@
     <meta name="description" content="Tech Ninja | Web &amp; IT Advanced Web Applications">
     <meta name="author" content="4UmNinja">
     <link rel="stylesheet" href="css/style.css?v=1.0">
+    <base href="/">
     <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 </head>
 
-<body>
+<body data-ng-app="cah">
+    <!-- NAVIGATION -->
+    <div data-ui-view="nav"></div>
+    <!-- MAIN SECTION -->
+    <div id="main-content" data-ui-view></div>
+    <!-- CONTENT SECTION -->
     <div class="container">
-        <!-- 	Cards Against Humanity Web App
-		Steps:
-			Choose Special Play Options Begin Game
-			Draw 10 White "Answer" Cards
-			Choose A Card Czar && Special Play Options
-			Give Black “Question” Card to Czar
-			Card Czar Reads Question
-			Players (Not Czar) Discard 1 White Answer Card  && Special Play Options
-			Card Czar Reads Each Question In sequence with filled in answers
-			Special Play Options determines winner of 1 Awesome Point
-			Loop Step #2 Until 10 points || time limit reached
-
-		White Cards = [noun, gerund, sing word, phrase constructors]
-		Black Cards = [fill in the blank, direct question] 
-
-		Special Play Options:
-			Card Czar Game Selection
-			Exchange Point For New Card
-			Vote Based Winner Selection
-
-		Modifyers:
-			Pick 2 Cards
-			Pick 3 Cards
- 	-->
-        <h1 id="title">Browser Against The List <div class="title-break"></div>
- 			<span>Cards Against Humanity Hack</span>
- 		</h1>
-        <div id="instructions">
-            <h2 class="heading">Steps</h2>
-            <div class="body">
-                <ol id="steps">
-                    <li class="step">
-                        <div><div>Choose Special Play Options Begin Game <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Draw 10 White "Answer" Cards <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Choose A Card Czar &amp;&amp; Special Play Options <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Give Black “Question” Card to Czar <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Card Czar Reads Question <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Players (Not Czar) Discard 1 White Answer Card &amp;&amp; Special Play Options <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Card Czar Reads Each Question In sequence with filled in answers <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Special Play Options determines winner of 1 Awesome Point <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                    <li class="step">
-                        <div><div>Loop Step #2 Until 10 points || time limit reached <button class="run">Run Step #<span class="step-number">0</span></button></div></div>
-                    </li>
-                </ol>
-            </div>
-        </div>
-        <div id="output">
-            <h2 class="title">Output Window</h2>
-            <div class="status-window"></div>
-            <div class="output-window"></div>
-        </div>
-        <div class="clearfix"></div>
-        <div id="cards">
-            <p><strong>White Cards =</strong> [noun, gerund, sing word, phrase constructors]</p>
-            <p><strong>Black Cards =</strong> [fill in the blank, direct question]</p>
-        </div>
-        <br>
-        <h2 class="heading">Special Play Options</h2>
-        <ul id="special-play">
-            <li class="option">Card Czar Game Selection</li>
-            <li class="option">Exchange Point For New Card</li>
-            <li class="option">Vote Based Winner Selection</li>
-        </ul>
-        <h2 class="heading">Modifyers</h2>
-        <ul id="special-play">
-            <li class="option">Pick 2 Cards</li>
-            <li class="option">Pick 3 Cards</li>
-        </ul>
+        <!-- Content View -->
+        <div data-ui-view="content" data-autoscroll="true"></div>
     </div>
-    <script src="js/prototypes.js"></script>
-    <script src="js/game/game.players.js"></script>
-    <script src="js/game/game.main.js"></script>
-    <script src="js/game/game.js"></script>
+    <!-- FOOTER SECTION -->
+    <div data-ui-view="footer"></div>
+    <!-- CUSTOM GAME SCRIPTS -->
+    <script type='text/javascript' src="js/prototypes.js"></script>
+    <script type='text/javascript' src="js/game/game.players.js"></script>
+    <script type='text/javascript' src="js/game/game.main.js"></script>
+    <script type='text/javascript' src="js/game/game.js"></script>
+    <!-- ANGULAR CORE FILES -->
+    <script type='application/javascript' src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+    <script type='application/javascript' src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
+    <!-- ANGULAR CUSTOM SCRIPTS -->
+    <script type='application/javascript' src="js/app/app.js"></script>
+    <script type='application/javascript' src="js/app/app.config.js"></script>
+    <script type='application/javascript' src="js/app/services/card.service.js"></script>
+    <script type='application/javascript' src="js/app/controllers/app.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/nav.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/lobby.controller.js"></script>
+    <script type='application/javascript' src="js/app/directives/game.directive.js"></script>
 </body>
 
 </html>

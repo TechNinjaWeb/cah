@@ -236,4 +236,3 @@ var list = document.getElementById('steps'),
     e.className += ' disabled';
   });
 });
-
