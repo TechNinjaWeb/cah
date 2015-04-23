@@ -21,7 +21,9 @@
     <!-- CONTENT SECTION -->
     <div class="container">
         <!-- Content View -->
-        <div data-ui-view="content" data-autoscroll="true"></div>
+        <div data-ui-view="left"></div>
+        <div data-ui-view="content" data-autoscroll="false"></div>
+        <div data-ui-view="right"></div>
     </div>
     <!-- FOOTER SECTION -->
     <div data-ui-view="footer"></div>
@@ -37,10 +39,11 @@
     <script type='application/javascript' src="js/app/app.js"></script>
     <script type='application/javascript' src="js/app/app.config.js"></script>
     <script type='application/javascript' src="js/app/services/card.service.js"></script>
-    <script type='application/javascript' src="js/app/controllers/app.controller.js"></script>
-    <script type='application/javascript' src="js/app/controllers/nav.controller.js"></script>
-    <script type='application/javascript' src="js/app/controllers/lobby.controller.js"></script>
-    <script type='application/javascript' src="js/app/directives/game.directive.js"></script>
+    <script type='application/javascript' src="js/app/controllers/app/app.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/app/app.nav.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/game/game.lobby.controller.js"></script>
+    <script type='application/javascript' src="js/app/directives/game.hud.directive.js"></script>
+    <script type='application/javascript' src="js/app/directives/level.one.directive.js"></script>
 </body>
 
 </html>
