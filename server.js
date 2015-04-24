@@ -44,21 +44,21 @@ app.use(express.static(__dirname + '/public'));
 app.use('/scripts', express.static(__dirname + '/node_modules'));
 app.use('/scripts', express.static(__dirname + '/bower_components'));
 
-var userList = {},
-    roomsList = {};
-roomsList.default = 'NinjaLounge';
-roomsList[roomsList.default] = roomsList.default;
+var activeUsers = {},
+    gameRooms = {};
+    gameRooms.default = 'BiggerBlackerRoom';
+    gameRooms[gameRooms.default] = gameRooms.default;
 
 io.on('connection', function(socket) {
     // console.log("USER CONNECTED:",socket);
    
     socket.on('new-channel', function(data) {
         console.log("NEW-CHANNEL DATA", data);
-        if (!roomsList[data.channel]) {
+        if (!gameRooms[data.channel]) {
             initiatorChannel = data.channel;
         }
         console.log("SERVER DATA", data)
-        roomsList[data.channel] = data.channel;
+        gameRooms[data.channel] = data.channel;
         onNewNamespace(data.channel, data.sender);
     });
 
@@ -92,18 +92,18 @@ io.on('connection', function(socket) {
     }
 
     // TECHNINJA IO CODE
-    socket.join('NinjaLounge');
+    socket.join('BiggerBlackerRoom');
 
     var handshake, address,
         headers, host, origin;
 
-    user = {},
+        user = {},
         user.username = [];
         user.handshake = socket.handshake,
         user.address = socket.handshake.address,
         user.host = socket.handshake.headers.host,
         user.origin = socket.handshake.headers.origin,
-        user.rooms = socket.rooms;
+        user.gameRoom = socket.gameRoom;
 
     // JOIN ROOM WITH HANDSHAKE ID
     socket.join(handshake);
@@ -121,7 +121,7 @@ io.on('connection', function(socket) {
             // user.handshake + "\n",
             user.host + "\n",
             // user.origin + "\n",
-            user.rooms + "\n");
+            user.gameRoom + "\n");
     }, 5000);
 
     socket.emit('server', {
@@ -130,8 +130,8 @@ io.on('connection', function(socket) {
 
     socket.on('adduser', function(userName) {
         // Add user to master list
-        userList[userName] = userName;
-        console.log(userList['Rahim\'s Macbook'], "Users List");
+        activeUsers[userName] = userName;
+        console.log(activeUsers['Rahim\'s Macbook'], "Users List");
         socket.emit("server", "We've Added You: " + userName);
     });
 
@@ -148,31 +148,31 @@ io.on('connection', function(socket) {
 
 	// List Users And Rooms
     socket.on('sendAll', function(data) {
-        console.log("Sending rooms & users list to:", user.rooms[0]);
+        console.log("Sending gameRoom & users list to:", user.gameRoom[0]);
         socket.emit('getAll', {
-            'rooms': roomsList,
-            'usersOnline': userList
+            'gameRoom': gameRooms,
+            'usersOnline': activeUsers
         })
     });
     // List Rooms
     socket.on('sendRooms', function(data) {
-        console.log("Sending rooms list to:", user.rooms[0]);
+        console.log("Sending gameRoom list to:", user.gameRoom[0]);
         socket.emit('getRooms', {
-            'rooms': roomsList
+            'gameRoom': gameRooms
         })
     });
     // List Users
     socket.on('sendUsers', function(data) {
-        console.log("Sending Users list to:", user.rooms[0]);
+        console.log("Sending Users list to:", user.gameRoom[0]);
         socket.emit('getUsers', {
-            'rooms': userList
+            'gameRoom': activeUsers
         })
     });
     // Create A Room
     socket.on('createRoom', function(room) {
-        rooms.push(room);
-        socket.emit('updaterooms', rooms, socket.room);
-        console.log('Update All Users with New Rooms', rooms, socket.room);
+        gameRoom.push(room);
+        socket.emit('updategameRoom', gameRoom, socket.room);
+        console.log('Update All Users with New Rooms', gameRoom, socket.room);
     });
 
     // Switch Rooms
@@ -185,7 +185,7 @@ io.on('connection', function(socket) {
         socket.broadcast.to(oldroom).emit('updatechat', socket.username + ' has left this room');
         socket.room = newroom;
         socket.broadcast.to(newroom).emit('updatechat', socket.username + ' has joined this room');
-        socket.emit('updaterooms', rooms, newroom);
+        socket.emit('updategameRoom', gameRoom, newroom);
     });
 
     socket.on('privateMessage', function(username, message) {
@@ -197,7 +197,7 @@ io.on('connection', function(socket) {
         console.log("User Left", channel);
         socket.disconnect();
         // if (initiatorChannel) {
-        //     delete roomsList[initiatorChannel];
+        //     delete gameRooms[initiatorChannel];
         // }
     });
 });

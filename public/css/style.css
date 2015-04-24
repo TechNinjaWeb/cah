@@ -6,6 +6,7 @@ a { margin-right: 10px; }
 #game-nav:first-child { padding-left: 40px; }
 .clearfix { clear: both; }
 .disabled { background-color: #ccc; }
+.nav-title { text-transform: capitalize; }
 #title { margin: 0 auto; }
 #title span { font-size:12px; }
 .title-break  { display: block; margin-top: -20px; }

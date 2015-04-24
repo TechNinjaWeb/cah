@@ -1,13 +1,32 @@
-GAME.controller('GameNavController', function($scope, UserSocket) {
+game.controller('GameNavController', function($scope, UserSocket) {
     // console.log("Call from Card Service");
-    $scope.sendAll = window.sendAll = function() {
-    	console.log("Clicked SendAll");
-    	UserSocket.emit('sendAll', function(res){
-	    	console.log(["Here's All the info I've got", res]);
-	    })
+    var nav = {
+        home: {
+            name: 'home',
+            sref: 'home.app',
+            hash: '/'
+        },
+        lobby: {
+            name: 'lobby',
+            sref: 'game.lobby',
+            hash: '/lobby'
+        },
+        levelOne: {
+            name: 'one',
+            sref: 'game.one',
+            hash: '/one'
+        },
+        levelTwo: {
+            name: 'two',
+            sref: 'game.two',
+            hash: '/two'
+        },
+        options: {
+            name: 'options',
+            sref: 'game.options',
+            hash: '/options'
+        }
     }
 
-    UserSocket.on('getAll', function(all){
-    	console.log(["Gimme Gimme", all]);
-    })
+    $scope.nav = nav;
 });

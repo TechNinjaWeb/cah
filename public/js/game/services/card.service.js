@@ -1,3 +1,3 @@
-GAME.service('CardService', function cardService(){
+game.service('CardService', function cardService(){
 	console.log("Call from Card Service");
 })

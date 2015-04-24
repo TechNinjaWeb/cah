@@ -1,4 +1,4 @@
-GAME.directive('hud', function() {
+game.directive('hud', function() {
     return {
         restrict: 'A',
         transclude: true,

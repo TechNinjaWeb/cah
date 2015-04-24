@@ -1,4 +1,4 @@
-GAME.directive('levelOne', function() {
+game.directive('levelOne', function() {
     return {
         restrict: 'E',
         transclude: true,

@@ -1,4 +1,4 @@
-GAME.run(function($rootScope){
+game.run(function($rootScope){
 	console.log("Testing Game Run Function", $rootScope);
 	//////////////////
 	// Loop Test!!!!!!
@@ -8,19 +8,19 @@ GAME.run(function($rootScope){
 	//////////////////
 	//////////////////
 
-	$rootScope.game = Game = new CAH();
-	console.log("my Game", Game);
+	$rootScope.Game = window.Game = new CAH();
+	console.log("Game World", Game);
 
-	var functions = {};
-		functions.stepOne = stepOne
-		, functions.stepTwo = stepTwo
-		, functions.stepThree = stepThree
-		, functions.stepFour = stepFour
-		, functions.stepFive = stepFive
-		, functions.stepSix = stepSix
-		, functions.stepSeven = stepSeven
-		, functions.stepEight = stepEight;
-		$rootScope.game.functions = functions;
+	var actions = {};
+		actions.stepOne = stepOne
+		, actions.stepTwo = stepTwo
+		, actions.stepThree = stepThree
+		, actions.stepFour = stepFour
+		, actions.stepFive = stepFive
+		, actions.stepSix = stepSix
+		, actions.stepSeven = stepSeven
+		, actions.stepEight = stepEight;
+		$rootScope.Game.actions = actions;
 
 	var frame = 0;
 	// Loop Test!

@@ -1,5 +1,6 @@
 app.config(function config($stateProvider, $urlRouterProvider, $locationProvider, $urlMatcherFactoryProvider) {
     $stateProvider
+////    App Routing     ////
         .state('home', {
             url: '',
             abstract: true,
@@ -32,6 +33,7 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
                 }
             }
         })
+////    Game Routing        ////
         .state('game', {
             url: '/game',
             abstract: true,
@@ -41,8 +43,8 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
                     controller: "GameNavController"
                 },
                 'content@': {
-                    templateUrl: './js/game/html/pages/lobby.html',
-                    controller: "LobbyController"
+                    templateUrl: './js/game/html/template/game.lobby.content.html',
+                    controller: "GameController"
                 },
                 'left@': {
                     templateUrl: './js/game/html/template/game.left.sidebar.html',
@@ -62,8 +64,32 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
             url: '/lobby',
             views: {
                 'game': {
-                    templateUrl: './js/game/html/test/test.html',
-                    controller: ""
+                    templateUrl: './js/game/html/pages/lobby.html',
+                    controller: "LobbyController"
+                },
+                'sandbox': {
+                    template: 'testing the sandbox ui tag'
+                }
+            }
+        })
+        .state('game.join', {
+            url: '/join',
+            views: {
+                'game': {
+                    templateUrl: './js/game/html/pages/join.game.html',
+                    controller: "LobbyController"
+                },
+                'sandbox': {
+                    template: 'testing the sandbox ui tag'
+                }
+            }
+        })
+        .state('game.create', {
+            url: '/create',
+            views: {
+                'game': {
+                    templateUrl: './js/game/html/pages/create.game.html',
+                    controller: "LobbyController"
                 },
                 'sandbox': {
                     template: 'testing the sandbox ui tag'
@@ -100,11 +126,12 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
                 }
             }
         })
+////    Test Routing        ////
         .state('home.test', {
             url: '/testing',
             views: {
                 'content@': {
-                    template: 'test placeholder',
+                    templateUrl: './js/app/html/test/test.html',
                     controller: ""
                 }
             }

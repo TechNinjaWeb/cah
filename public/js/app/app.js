@@ -6,4 +6,4 @@ var app = angular.module('cah', [ 'ui.router'
 app.controller('cah.controllers', []);
 app.service('cah.services', []);
 
-var GAME = angular.module('cah.game', ['btford.socket-io']);
+var game = angular.module('cah.game', ['btford.socket-io']);

@@ -1,7 +1,6 @@
-<a data-ui-sref="home.app">Home</a>
-<a ui-sref="game.lobby">Lobby Screen</a>
-<a ui-sref="game.options">Options</a>
-<a ui-sref="game.one">Level One</a>
-<a ui-sref="game.two">Level Two</a>
-
-<button data-ng-click="sendAll()">Send All Players</button>
+<a class="nav-title" data-ui-sref="{{ nav.home.sref }}">{{ nav.home.name }}</a>
+<a class="nav-title" data-ui-sref="{{ nav.lobby.sref }}">{{ nav.lobby.name }}</a>
+<!-- <a class="nav-title" data-ui-sref="{{ nav.levelOne.sref }}">{{ nav.levelOne.name }}</a> -->
+<!-- <a class="nav-title" data-ui-sref="{{ nav.levelTwo.sref }}">{{ nav.levelTwo.name }}</a> -->
+<a class="nav-title" data-ui-sref="{{ nav.options.sref }}">{{ nav.options.name }}</a>
+<a class="nav-title">Join A Game!</a>
