@@ -15,7 +15,7 @@
 
 <body data-ng-app="cah">
     <!-- NAVIGATION -->
-    <div data-ui-view="nav"></div>
+    <nav data-ui-view="nav"class="navigation"></nav>
     <!-- MAIN SECTION -->
     <div id="main-content" data-ui-view></div>
     <!-- CONTENT SECTION -->
@@ -31,19 +31,20 @@
     <script type='text/javascript' src="js/prototypes.js"></script>
     <script type='text/javascript' src="js/game/game.players.js"></script>
     <script type='text/javascript' src="js/game/game.main.js"></script>
-    <script type='text/javascript' src="js/game/game.js"></script>
     <!-- ANGULAR CORE FILES -->
     <script type='application/javascript' src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
     <script type='application/javascript' src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
     <!-- ANGULAR CUSTOM SCRIPTS -->
     <script type='application/javascript' src="js/app/app.js"></script>
     <script type='application/javascript' src="js/app/app.config.js"></script>
-    <script type='application/javascript' src="js/app/services/card.service.js"></script>
     <script type='application/javascript' src="js/app/controllers/app/app.controller.js"></script>
     <script type='application/javascript' src="js/app/controllers/app/app.nav.controller.js"></script>
-    <script type='application/javascript' src="js/app/controllers/game/game.lobby.controller.js"></script>
-    <script type='application/javascript' src="js/app/directives/game.hud.directive.js"></script>
-    <script type='application/javascript' src="js/app/directives/level.one.directive.js"></script>
+    <script type='application/javascript' src="js/game/game.run.js"></script>
+    <script type='application/javascript' src="js/game/services/card.service.js"></script>
+    <script type='application/javascript' src="js/game/controllers/game.lobby.controller.js"></script>
+    <script type='application/javascript' src="js/game/controllers/game.nav.controller.js"></script>
+    <script type='application/javascript' src="js/game/directives/game.hud.directive.js"></script>
+    <script type='application/javascript' src="js/game/directives/level.one.directive.js"></script>
 </body>
 
 </html>
