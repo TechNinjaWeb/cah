@@ -200,7 +200,16 @@ io.on('connection', function(socket) {
             'gameRoom': gameRooms
         })
     });
-    // List Users
+
+    // List User and Users
+    socket.on('sendUser', function(id) {
+        // console.log(["FIND USER PARAMS ----->", id]);
+        parse.find('_User', id, function (err, res) {
+            socket.emit('getUser', res);
+            console.log(['Response Data', response]);
+        });
+    });
+
     socket.on('sendUsers', function(data) {
         var table = '_User',
             data = '';
@@ -218,70 +227,84 @@ io.on('connection', function(socket) {
         
     });
 
-    // Parse Get / Post Socket Functions
-
-    socket.on('sendUser', function(id) {
-        // console.log(["FIND USER PARAMS ----->", id]);
-        parse.find('_User', id, function (err, res) {
-            socket.emit('getUser', res);
-            console.log(['Response Data', response]);
-        });
-    });
 
     socket.on('sendActiveGames', function(req) {
-        console.log(['Request Data', req.data]);
-        socket.emit('getActiveGames', "Still In Test Phase!");
+        console.log(['Send Active Games:', req]);
+
+        parse.findMany('GameData', { active: true }, function (err, res) {
+            if (!res)return socket.emit('test-emitter', 'ERROR Ln:235'); 
+            socket.emit('getActiveGames', res.results);
+
+            console.log(['SEND GAME DATA END WITH RES --->', res]);
+        });
 
         // console.log(['This Look Promising', grabData('GameData', { active: 'true'})])
     });
 
     socket.on('sendGame', function(game) {
-        console.log(['Request Data', game]);
+        console.log(['Send Game To Client', game]);
         parse.find('GameData', game, function (err, res) {
-            socket.emit('getGame', res);
-            console.log(['Response Data', res]);
+            socket.emit('GameData', res);
+            console.log(['SEND GAME DATA END WITH RES --->', res]);
         });
     });
 
     socket.on('saveGame', function(game) {
-        console.log(['Request Data', game]);
+        console.log(['Save Game Data In -->', game]);
         var params = {};
         if (typeof game == 'object') {
-            // console.log(["GAME OBJECT TO SAVE", game], ['type', typeof game, 'Has Active Prop', game.hasOwnProperty('active')])
+            console.log(["GAME OBJECT TO SAVE", 'Should look like server data', game], ['type', typeof game, 'Has Active Prop', game.hasOwnProperty('active')])
             for (p in game) {
                 params[p] = game[p];
-                console.log(["Params and Properties ---->>>"], [p, params, params[p]]);
-
+                console.log(["PROPERTY TO VERIFY", 'PARAMS', p, 'GAME VAL', game[p]]);
             }
         } else params = game;
 
+        // console.log(["Params and Properties ---->>>"], [params]);
+
         parse.insert('GameData', params, function (err, res) {
-            if (err) socket.emit('saveGame', err);
-            else socket.emit('saveGame', res);
-            console.log(['Response Data', res]);
+            if (err) socket.emit('test-emitter', err);
+            else io.sockets.emit('GameData', game);
+            console.log(['GAME DATA SAYS:', 'Saved Game'], ['Error', err]);
         });
 
     });
 
     socket.on('updateGame', function(game) {
-        console.log(['Request Data', game]);
-        parse.update('GameData', game.id, game.data, function (err, res) {
-            console.log(["Response From Parse", res]);
-            socket.broadcast.emit('gameState', ['Data Has Been Updated Successfully', game]);
+
+        parse.find('GameData', game.id, function (err, res) {
+            console.log(["Add Player Response From Parse", res, err]);
+            // Send Parse Res To Client
+
+            console.log(["EMIT GAMESTATE TO CLIENT", game])
+
+            parse.update('GameData', game.id, game.data, function (err, res) {
+                // console.log(["Response From Parse", res]);
+                console.log(["Called Update Game with data -->", game]);
+
+                io.sockets.emit('GameData', game);
+            });
         });
+
+        console.log(['Update Data ------- >', game]);
+
+        
+    });
+
+    socket.on('addPlayer', function(game) {
+        console.log(['Adding Players To Game ---- >', game]);
+        // Parse Update
+        parse.update('GameData', game.id, game.data, function (err, res) {
+            console.log(["Add Player Response From Parse", res, err]);
+            // Send Parse Res To Client
+            game.funnyProperty = 'HAHAHAHAHAHAHAHAHA';
+            console.log(["EMIT GAMESTATE TO CLIENT", game])
+        });
+
+        io.sockets.emit('GameData', game);
     });
 
 
-
-    function addUser(username, password) {
-        parse.insertCustom('users', { 
-            username: username || 'tom@j.com', 
-            password: password || 'wow'
-        }, function (err, response) {
-            console.log(response);
-            return response;
-        });
-    }
 
 
     // // Create A Room

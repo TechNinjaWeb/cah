@@ -1,16 +1,16 @@
 var count = 0;
 // Create Player Class Object
-var player = window.player = function(na,c, _id){
+var player = window.player = function(na, _id){
 	var self = this;
-	return (function(name, cards, id){
+	return (function(name, userId){
 		
 		var s = this
-		id += 1;
+		userId += 1;
 		
 		return {
-			id: id,
+			userId: userId,
 			name: name,
-			cards: cards,
+			cards: [],
 			choice: [],
 			isCzar: false,
 			state: 'player-created',
@@ -64,7 +64,7 @@ var player = window.player = function(na,c, _id){
 				else "Oh, You Lookin' For Pookie In D-Block";
 			}
 		}
-	}(na || '', c || [], _id || 0)); 
+	}(na || '', _id || 0)); 
 };
 player.prototype = new player('basic', []);
 

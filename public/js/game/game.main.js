@@ -30,9 +30,10 @@ var CAH = function() {
 		g.setState = setState,
 		g.logState = logState,
 		g.getVal = getVal,
+		g.setVal = setVal,
 		g.drawOneCard = drawOneCard,
 		g.drawManyCards = drawManyCards,
-		g.getFakePlayers = getFakePlayers,
+		g.addPlayer = addPlayer,
 		g.dealCards = dealCards,
 		g.players.get = ch.get,
 		g.czar.get = ch.get,
@@ -179,6 +180,12 @@ var CAH = function() {
 			return obj[name];
 		};
 
+		function setVal(obj, val) {
+			var token = this[obj] = val;
+			// console.log(["From Deep IN Main", obj, val], [token])
+			return token;
+		};
+
 		function changeVal(atr, val) {
 			return this[atr] = val;
 		};
@@ -233,15 +240,11 @@ var CAH = function() {
 	    }
 	    
 
-	    function getFakePlayers(ar, cards) {
-	    	console.log("Cards in fake players", cards);
-	    	ar.push(
-		    	new player('kevin', ['help', 'me', 'im', 'awesome'])
-		    	, new player('dave', ['one', 'two', 'buckle', 'my shoe'])
-		    	, new player('Paul', ['big', 'worm', 'whata', 'name yo!'])
-		    	);
+	    function addPlayer(username, id, game) {
+	    	console.log(["Cards in fake players"], [id, username]);
+	    	g.players.push(new player(username, id));
 	    	// console.log("Fake Players Populated", g.players);
-	    	return pbyName = ar.map(function(e,i,a){
+	    	return pbyName = g.players.map(function(e,i,a){
 	    		var token = pByName[e.name] = { id: i, data: a[i] };
 	    		return token;
 	    	});

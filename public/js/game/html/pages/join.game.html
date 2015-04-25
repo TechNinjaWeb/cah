@@ -1,12 +1,9 @@
 JOIN GAME
 <ul>
-	<li data-ui-sref="game.one" data-ng-repeat="user in game.players">Simulated User</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
-	<li data-ui-sref="game.one" >Simulated Game Room</li>
+	<li data-ng-repeat="game in games.list">
+		<ul data-ng-click="joinGame(game.objectId)">
+			<li>Game ID: {{ game.objectId }}</li>
+			<li>State: {{ game.state }}</li>
+		</ul>
+	</li>
 </ul>

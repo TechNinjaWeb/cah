@@ -1,4 +1,4 @@
-game.controller('GameNavController', function($scope) {
+game.controller('GameNavController', function($scope, GameData, $rootScope, LoginService) {
     // console.log("Call from Card Service");
     var nav = {
         home: {
@@ -29,4 +29,9 @@ game.controller('GameNavController', function($scope) {
     }
 
     $scope.nav = nav;
+    $scope.username = $rootScope.Game.username;
+
+    $scope.login = function(username, password) {
+        return LoginService.login(username, password);
+    }
 });

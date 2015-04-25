@@ -11,7 +11,9 @@ game.run(function($rootScope){
 	$rootScope.Game = window.Game = new CAH();
 
 	$rootScope.Game.active = window.Game.active = $rootScope.Game.active;
+	
 	console.log("Game World", Game);
+
 
 	var actions = {};
 		actions.stepOne = stepOne
@@ -21,7 +23,7 @@ game.run(function($rootScope){
 		, actions.stepFive = stepFive
 		, actions.stepSix = stepSix
 		, actions.stepSeven = stepSeven
-		, actions.stepEight = stepEight;
+		, actions.stepEight = stepEight
 		$rootScope.Game.actions = actions;
 
 	var frame = 0;
@@ -100,14 +102,15 @@ game.run(function($rootScope){
 		
 	};
 
+	
 	function stepOne() {
 		clear();
 		Game.setState('step-one');
 		Game.setDefaultOptions(Game.defaults)
 
-		Game.getFakePlayers(Game.players);
-		if (Game.whiteCards && Game.blackCards && !Game.waiting) Game.setState('get-fake-players');
-		else "Getting Players";
+		// Game.getFakePlayers(Game.players);
+		// if (Game.whiteCards && Game.blackCards && !Game.waiting) Game.setState('get-fake-players');
+		// else "Getting Players";
 
 		return Game.setState('finished-step-one');
 	}
