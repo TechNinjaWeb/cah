@@ -1,6 +1,6 @@
 app.factory('UserSocket', function (socketFactory, $rootScope) {
 	
-	var socket = {};
+	var socket = window.SOCKET = {};
 		socket.run = socketFactory(),
 		socketFactory();
 	// console.log(["User Socket Factory", socket]);
@@ -39,6 +39,7 @@ app.factory('UserSocket', function (socketFactory, $rootScope) {
     	console.log(["Test Emitter", all]);
     	$rootScope.Game.actions.stepOne();
     })
+
 
     // KEY FUNCTIONS
     socket.sendAll = function() {

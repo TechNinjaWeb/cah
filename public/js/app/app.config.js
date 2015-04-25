@@ -42,6 +42,10 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
                     templateUrl: './js/game/html/template/game.nav.html',
                     controller: "GameNavController"
                 },
+                'status': {
+                    templateUrl: './js/game/html/template/game.nav.status.html',
+                    controller: "LobbyController"
+                },
                 'content@': {
                     templateUrl: './js/game/html/template/game.lobby.content.html',
                     controller: "GameController"

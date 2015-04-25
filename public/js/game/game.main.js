@@ -6,7 +6,7 @@ var CAH = function() {
 	return (function(g,ch){
 		var player = ch.player,
 			czar = ch.czar;
-		var gameId = g.gameId = '', state = g.state = {}, updateLoop = g.updateLoop = [], whiteCards = g.whiteCards = [], blackCards = g.blackCards = [], defaults, 
+		var gameId = g.gameId = '', state = g.state = {}, active = g.active = false, updateLoop = g.updateLoop = [], whiteCards = g.whiteCards = [], blackCards = g.blackCards = [], defaults, 
 			specialOptions = g.specialOptions = {},
 			players = g.players = [], pByName = players.pByName = g.players.pByName = {}, totalPlayers = g.players.total = -2;
 			players.czar = g.czar = '', waiting = g.waiting = false, answers = g.answers = [],

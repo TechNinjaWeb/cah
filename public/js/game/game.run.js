@@ -9,6 +9,8 @@ game.run(function($rootScope){
 	//////////////////
 
 	$rootScope.Game = window.Game = new CAH();
+
+	$rootScope.Game.active = window.Game.active = $rootScope.Game.active;
 	console.log("Game World", Game);
 
 	var actions = {};

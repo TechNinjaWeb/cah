@@ -1,0 +1,1 @@
+var game = angular.module('cah.game', ['btford.socket-io', 'ngResource']);
