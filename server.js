@@ -142,22 +142,6 @@ io.on('connection', function(socket) {
     socket.emit('sendUserName')
 
 
-
-
-
-
-
-
-
-    // Hoisted Functions
-    // parse.actions.grabData = grabData;
-    parse.actions.grabOne = grabOne;
-    parse.actions.userCheck = userCheck;
-    parse.actions.addUser = addUser;
-
-
-
-
     socket.on('getUserName', function(user){
         console.log("User Sent User Name, But You HAve To Unwrap It!");
     })
@@ -186,67 +170,144 @@ io.on('connection', function(socket) {
     //     });
     // });
 
+
+
+
 	// List Users And Rooms
     socket.on('sendAll', function(data) {
-        console.log("Sending gameRoom & users list to:", user.username);
-        var activeUsers = grabUsers();
-        socket.emit('getAll', {
-            'gameRoom': gameRooms,
-            'activeUsers': activeUsers || null
-        })
-
-
-        function grabUsers() {
-            return parse.grabData('User', '');
-        }
-
-
-
-
-
+         var table = '_User',
+            data = '';
+        parse.findMany(table, data, function (err, res) {    
+            socket.emit('getAll', {
+                'gameRoom': gameRooms,
+                'activeUsers': res.results.map(function(e,i,a){
+                    return [e.username, {id: e.objectId, data: e}]
+                })
+            }, function(err){
+                console.log(["error from send all", err]);
+            })
+            // console.log(["this elusive array", res.results]);
+            return "Sent Users To Socket" + res.results;
+        });
     });
+
+
+
     // List Rooms
     socket.on('sendRooms', function(data) {
-        console.log("Sending gameRoom list to:", user.gameRoom[0]);
+        console.log("Sending gameRoom list to:", user);
         socket.emit('getRooms', {
             'gameRoom': gameRooms
         })
     });
     // List Users
     socket.on('sendUsers', function(data) {
-        console.log("Sending Users list to:", user.gameRoom[0]);
-
-        var users = grabData('User', '');
-        console.log(["Send User Function Says:","Users", user])
-
-        socket.emit('getUsers', {
-            'users': users
-        })
-    });
-    // Create A Room
-    socket.on('createRoom', function(room) {
-        gameRoom.push(room);
-        socket.emit('updategameRoom', gameRoom, socket.room);
-        console.log('Update All Users with New Rooms', gameRoom, socket.room);
-    });
-
-    // Switch Rooms
-    socket.on('switchRoom', function(newroom) {
-        var oldroom;
-        oldroom = socket.room;
-        socket.leave(socket.room);
-        socket.join(newroom);
-        socket.emit('updatechat', 'you have connected to ' + newroom);
-        socket.broadcast.to(oldroom).emit('updatechat', socket.username + ' has left this room');
-        socket.room = newroom;
-        socket.broadcast.to(newroom).emit('updatechat', socket.username + ' has joined this room');
-        socket.emit('updategameRoom', gameRoom, newroom);
+        var table = '_User',
+            data = '';
+        parse.findMany(table, data, function (err, res) {    
+            socket.emit('getUsers', {
+                'users': res.results.map(function(e,i,a){
+                    return [e.username, {id: e.objectId, data: e}]
+                })
+            }, function(err){
+                // console.log(["error from send all", err]);
+            })
+            console.log(["this elusive array", res.results]);
+            return "Sent Users To Socket" + res.results;
+        });
+        
     });
 
-    socket.on('privateMessage', function(username, message) {
-        socket.broadcast.to(username).emit(message);
-        console.log("Private Message to: " + username);
+    // Parse Get / Post Socket Functions
+
+    socket.on('sendUser', function(id) {
+        // console.log(["FIND USER PARAMS ----->", id]);
+        parse.find('_User', id, function (err, res) {
+            socket.emit('getUser', res);
+            console.log(['Response Data', response]);
+        });
     });
+
+    socket.on('sendActiveGames', function(req) {
+        console.log(['Request Data', req.data]);
+        socket.emit('getActiveGames', "Still In Test Phase!");
+
+        // console.log(['This Look Promising', grabData('GameData', { active: 'true'})])
+    });
+
+    socket.on('sendGame', function(game) {
+        console.log(['Request Data', game]);
+        parse.find('GameData', game, function (err, res) {
+            socket.emit('getGame', res);
+            console.log(['Response Data', res]);
+        });
+    });
+
+    socket.on('saveGame', function(game) {
+        console.log(['Request Data', game]);
+        var params = {};
+        if (typeof game == 'object') {
+            // console.log(["GAME OBJECT TO SAVE", game], ['type', typeof game, 'Has Active Prop', game.hasOwnProperty('active')])
+            for (p in game) {
+                params[p] = game[p];
+                console.log(["Params and Properties ---->>>"], [p, params, params[p]]);
+
+            }
+        } else params = game;
+
+        parse.insert('GameData', params, function (err, res) {
+            if (err) socket.emit('saveGame', err);
+            else socket.emit('saveGame', res);
+            console.log(['Response Data', res]);
+        });
+
+    });
+
+    socket.on('updateGame', function(game) {
+        console.log(['Request Data', game]);
+        parse.update('GameData', game.id, game.data, function (err, res) {
+            console.log(["Response From Parse", res]);
+            socket.broadcast.emit('gameState', ['Data Has Been Updated Successfully', game]);
+        });
+    });
+
+
+
+    function addUser(username, password) {
+        parse.insertCustom('users', { 
+            username: username || 'tom@j.com', 
+            password: password || 'wow'
+        }, function (err, response) {
+            console.log(response);
+            return response;
+        });
+    }
+
+
+    // // Create A Room
+    // socket.on('createRoom', function(room) {
+    //     gameRoom.push(room);
+    //     socket.emit('updategameRoom', gameRoom, socket.room);
+    //     console.log('Update All Users with New Rooms', gameRoom, socket.room);
+    // });
+
+    // // Switch Rooms
+    // socket.on('switchRoom', function(newroom) {
+    //     var oldroom;
+    //     oldroom = socket.room;
+    //     socket.leave(socket.room);
+    //     socket.join(newroom);
+    //     socket.emit('updatechat', 'you have connected to ' + newroom);
+    //     socket.broadcast.to(oldroom).emit('updatechat', socket.username + ' has left this room');
+    //     socket.room = newroom;
+    //     socket.broadcast.to(newroom).emit('updatechat', socket.username + ' has joined this room');
+    //     socket.emit('updategameRoom', gameRoom, newroom);
+    // });
+
+    // socket.on('privateMessage', function(username, message) {
+    //     socket.broadcast.to(username).emit(message);
+    //     console.log("Private Message to: " + username);
+    // });
 
     socket.on('disconnect', function(channel) {
         console.log("User Left", channel);
@@ -257,128 +318,48 @@ io.on('connection', function(socket) {
     });
 
 
-    socket.on('new-channel', function(data) {
-        console.log("NEW-CHANNEL DATA", data);
-        if (!gameRooms[data.channel]) {
-            initiatorChannel = data.channel;
-        }
-        console.log("SERVER DATA", data)
-        gameRooms[data.channel] = data.channel;
-        onNewNamespace(data.channel, data.sender);
-    });
+    // socket.on('new-channel', function(data) {
+    //     console.log("NEW-CHANNEL DATA", data);
+    //     if (!gameRooms[data.channel]) {
+    //         initiatorChannel = data.channel;
+    //     }
+    //     console.log("SERVER DATA", data)
+    //     gameRooms[data.channel] = data.channel;
+    //     onNewNamespace(data.channel, data.sender);
+    // });
 
 
-    function onNewNamespace(channel, sender) {
-        console.log("ONNEWNAMESPACE -- Client Calling for new channel, channel & sender", channel, sender)
-        io.of('/' + channel).on('connection', function(socket) {
-            var username;
-            if (io.isConnected) {
-                io.isConnected = false;
-                socket.emit('connect', true);
-                console.log("User Is Now Connected To: ")
-            } else console.log("User Not Connected Socket: ", socket)
+    // function onNewNamespace(channel, sender) {
+    //     console.log("ONNEWNAMESPACE -- Client Calling for new channel, channel & sender", channel, sender)
+    //     io.of('/' + channel).on('connection', function(socket) {
+    //         var username;
+    //         if (io.isConnected) {
+    //             io.isConnected = false;
+    //             socket.emit('connect', true);
+    //             console.log("User Is Now Connected To: ")
+    //         } else console.log("User Not Connected Socket: ", socket)
 
-            socket.on('message', function(data) {
-                console.log("Message Event - With Data: ", data)
-                if (data.sender == sender) {
-                    if (!username) username = data.data.sender;
+    //         socket.on('message', function(data) {
+    //             console.log("Message Event - With Data: ", data)
+    //             if (data.sender == sender) {
+    //                 if (!username) username = data.data.sender;
 
-                    socket.broadcast.emit('message', data.data);
-                }
-            });
+    //                 socket.broadcast.emit('message', data.data);
+    //             }
+    //         });
 
-            socket.on('disconnect', function() {
-                if (username) {
-                    socket.broadcast.emit('user-left', username);
-                    username = null;
-                }
-            });
-        });
-
-
-        // Parse Get / Post Socket Functions
-        socket.on('sendData', function(req) {
-            console.log(['Request Data', req.data]);
-            socket.emit('getData', "Still In Test Phase!");
-
-        });
-
-        socket.on('fetchData', function(req) {
-            console.log(['Request Data', req.data]);
-            socket.emit('fetchData', "Still In Test Phase!");
-
-        });
-
-        // socket.on('sendUsers', function(req) {
-        //     console.log(['Request Data', req.data]);
-        //     socket.emit('getUsers', "Still In Test Phase!");
-
-        // });
-
-        socket.on('findUser', function(req) {
-            console.log(['Request Data', req.data]);
-            socket.emit('findUser', "Still In Test Phase!");
-
-            // console.log(['This Look Promising', grabData('GameData', req.data.username)])
-        });
-
-        socket.on('sendActiveGames', function(req) {
-            console.log(['Request Data', req.data]);
-            socket.emit('getActiveGames', "Still In Test Phase!");
-
-            // console.log(['This Look Promising', grabData('GameData', { active: 'true'})])
-        });
-
-        socket.on('sendGame', function(req) {
-            console.log(['Request Data', req.data]);
-            socket.emit('getGame', "Still In Test Phase!");
-
-            var game;
-            grabOne('GameData', game);
-        });
+    //         socket.on('disconnect', function() {
+    //             if (username) {
+    //                 socket.broadcast.emit('user-left', username);
+    //                 username = null;
+    //             }
+    //         });
+    //     });
 
 
+    // }
 
-
-
-        // Grab Many
-        // data =  { foo: 'bar' }
-        function grabData(table, data) {
-            var err;
-            data = null || undefined ? err= "Provide Data" : !table ? err= "Provide Table" : err= null;
-            if(err) return err;
-            parse.findMany(table || 'Foo', data, function (err, response) {
-                console.log([response, !!err ? err : false ]);
-
-                return response;
-            });
-        }
-        // Grab One
-        // id = 'someId
-        function grabOne(table, id) {
-            var err;
-            !id ? err= "Provide ID" : !table ? err= "Provide Table" : err= null;
-            if(err) return err;
-            parse.find(table || 'Foo', id, function (err, response) {
-                console.log([response, !!err ? err : false ]);
-
-                return response;
-            });
-        }
-
-        function userCheck(username) {
-            return grabOne('User', username);
-        }
-
-        function addUser(username, password) {
-            parse.insertCustom('users', { 
-                username: username || 'tom@j.com', 
-                password: password || 'wow'
-            }, function (err, response) {
-                console.log(response);
-                return response;
-            });
-        }
+    
 
 
 
@@ -386,7 +367,6 @@ io.on('connection', function(socket) {
 
 
 
-    }
 
 
     // Future Implementation
@@ -475,30 +455,8 @@ io.on('connection', function(socket) {
     //         });
 
     //     });
-    // // Register Default Route Catch
+    // 
     
-
-
-    router.route('/')
-        // Define the GET HTTP Verb Actions
-        .get(function(req, res) {
-            // Get All GameModel Data
-            // console.log("Target Hit Route", req);
-            res.render('index.html', {
-                // controller: 'AppCtrl'
-            });
-        });
-    router.route('/test')
-        // Define the GET HTTP Verb Actions
-        .get(function(req, res) {
-            // Get All GameModel Data
-            // console.log("Target Hit Route", req);
-            res.render('test/test.html', {
-                // controller: 'AppCtrl'
-            });
-        });
-
-
 
 
 
@@ -506,12 +464,26 @@ io.on('connection', function(socket) {
 
 
 
+// Register Default Route Catch
+router.route('/')
+    // Define the GET HTTP Verb Actions
+    .get(function(req, res) {
+        // Get All GameModel Data
+        // console.log("Target Hit Route", req);
+        res.render('index.html', {
+            // controller: 'AppCtrl'
+        });
+    });
+router.route('/test')
+    // Define the GET HTTP Verb Actions
+    .get(function(req, res) {
+        // Get All GameModel Data
+        // console.log("Target Hit Route", req);
+        res.render('test/test.html', {
+            // controller: 'AppCtrl'
+        });
+    });
 
-// app.get('/*', function(req, res, next) {
-//     res.render('index.html', {
-//         controller: 'AppCtrl'
-//     });
-// });
 
 server.listen(PORT, function() {
     console.log("Socket & Express Server Started on port %d in %s mode", this.address().port, app.settings.env)

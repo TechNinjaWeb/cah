@@ -1,7 +1,7 @@
-app.controller('AppController', function AppController($scope, UserSocket){
+app.controller('AppController', function AppController($scope, GameData){
 	$scope.test = "Testing From App Controller";
 
     // Emite Get All Data On First Enter
-    UserSocket.run.emit('sendAll');
+    GameData.run.emit('sendAll');
     
 });

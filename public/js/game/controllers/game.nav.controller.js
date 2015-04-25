@@ -1,4 +1,4 @@
-game.controller('GameNavController', function($scope, UserSocket) {
+game.controller('GameNavController', function($scope) {
     // console.log("Call from Card Service");
     var nav = {
         home: {
