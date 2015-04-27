@@ -112,21 +112,39 @@ app.config(function config($stateProvider, $urlRouterProvider, $locationProvider
                 }
             }
         })
-        .state('game.one', {
-            url: '/level-one',
+        .state('game.player', {
+            url: '/lplayer',
             views: {
                 'game': {
-                    templateUrl: './js/game/html/level/one.html',
-                    controller: ""
+                    templateUrl: './js/game/html/views/player.html',
+                    controller: "PlayerController"
                 }
             }
         })
-        .state('game.two', {
-            url: '/level-two',
+        .state('game.czar', {
+            url: '/czar',
             views: {
                 'game': {
-                    templateUrl: './js/game/html/level/two.html',
-                    controller: ""
+                    templateUrl: './js/game/html/views/czar.html',
+                    controller: "CzarController"
+                }
+            }
+        })
+        .state('home.login', {
+            url: '/login',
+            views: {
+                'content@': {
+                    templateUrl: "./js/app/html/pages/login.html",
+                    controller: "LoginController"
+                }
+            }
+        })
+        .state('home.login.create', {
+            url: '/create',
+            views: {
+                'content@': {
+                    templateUrl: "./js/app/html/pages/login.create.html",
+                    controller: "LoginController"
                 }
             }
         })

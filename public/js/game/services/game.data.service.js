@@ -3,9 +3,10 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
     var socket = window.SOCKET = {};
         socket.run = socketFactory(),
         socket.data=[],
-        socket.currentGame=[],
+        socket.players = $rootScope.Game.players,
+        socket.currentGame = [],
         socketFactory();
-
+        window.currentGame= socket.currentGame;
 
     if (Parse.User.current()) $rootScope.Game.username = Parse.User.current().username;
     else $rootScope.Game.username = 'Tech Ninja';
@@ -26,7 +27,7 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
     })
 
     socket.run.on('server', function(res){
-        console.log(["Server Says", res.message], [res]);
+        console.log(["Server Says"], [res, 'message:', res.message]);
     })
 
     // Working When Emitter On Page
@@ -80,8 +81,8 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         return socket.run.emit('sendGame', id);
     }
 
-    socket.updateGame = function(id, data) {
-        var game = { id: id, data: data };
+    socket.updateGame = function(game) {
+        var game = { id: game.id, data: game };
 
         return socket.run.emit('updateGame', game);
     }
@@ -89,55 +90,6 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
     socket.sendActiveGames = function() {
         return socket.run.emit('sendActiveGames');
     }
-
-
-    // Game Play Features
-    socket.run.on('getGame', function(game){
-        console.log(["Here's Your Game", game]);
-        // check if it exists and update socket.data
-        validate(game);
-    })
-
-    socket.run.on('getActiveGames', function(res){
-        console.log(["Get Active Games", res]);
-        socket.data.length = 0;
-        res.forEach(function(e,i,a){
-            // Send Each Item To Data Array
-            console.log(["Pusing All Active Games To socket.data"]);
-            // Push Each Game into Array
-            if (e.length <=0 ) console.log(["Witholding Null Value", e]);
-            socket.data.push(e);
-        });
-        console.log(['Pushed Data into socket.data'], ['Socket.Data', socket.data])
-    })
-
-
-    socket.run.on('saveGame', function(game){
-        console.log(["Game Has Been Saved", game]);
-        // Validate Game and Push 
-        // If It's Newer
-//      validate(game);
-        console.warn(["PUSHING GAME DATA", "\n" +"\n"], ['game', game]);
-        // Call Socket Update On Game ID and Data
-    })
-
-    socket.run.on('GameData', function(game){
-        console.log(["Got Update Game Data -- Game  --->", game]);
-
-        socket.data.forEach(function(e,i,a){
-            // If E.ID == game.id,
-            // socket.data.shift() and socket.data.push(e);
-            console.log(['Compare IDs'], ['socket.data el, e'], ['game', game]);
-        })
-     
-    })
-
-    socket.run.on('addPlayer', function(gameData){
-        console.warn(['NULL FUNCTION', gameData]);
-        
-
-    })
-
 
     socket.createGame = function() {
         socket.run.emit('saveGame', {
@@ -153,26 +105,148 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         console.log(['Created Game', 'emited saveGame To Socket']);
     }
 
+     socket.addPlayer = function(username, id, game) {
+        console.log(["ATTEMPTING TO ADD THIS CHARACTER", username, id, game]);
+
+        var parsedUser = {
+            userId: Parse.User.current().id || 'Not A Member',
+            name: username,
+            cards: [],
+            choice: [],
+            isCzar: false,
+            state: 'player-created-'+username,
+            points: 0,
+        };
+        // Emit New Player Data
+        socket.run.emit('addPlayer', game, parsedUser);
+    }
+
+
+    // Game Play Features
+    socket.run.on('getGame', function(game){
+        console.log(["Here's Your Game", game]);
+        // check if it exists and update socket.data
+        validate(game);
+    })
+
     socket.joinGame = window.joinGame = function(id) {
         // Query Parse To Find The Game
+        var query = new Parse.Query("GameData");
+            query.equalTo('objectId', id);
+            
+            query.first({
+            success: function(res) {
+                // Add New User And Save GameData
+                var gameData=res.attributes;
+                var players = gameData.players;
 
-       
+                console.log(["Game Data Attribs", gameData, 'Are There Players?', !!players.length, players.length, players]);
+
+                // Add Player To Virtual Game
+                if(players.length<=0) socket.addPlayer(Parse.User.current().username || $rootScope.Game.username || 'No User Ln:130', id, gameData);
+                else 'Sending Player To UpdateGame Emitter Instead';
+
+                res.save({
+                    success: function(res) {
+                        // Update Local Game ID
+                        $rootScope.Game.setVal('gameId', id);
+
+                        console.warn(["Saved","Vaidate This Game Object To Update", res.id, res.attributes]);
+                        
+                        res.attributes.id = res.id;
+                        console.log(["Updated ID on attributes.id", res], ['sending to validate']);
+//                      // SENDING TO VALIDATE
+                        validate(res.attributes);
+                    },
+                    error: function(res,err) {
+                        console.warn(['Error', res,err]);
+                    }
+                });
+                
+                
+                return gameData;
+            },
+            error: function(error) {
+                    alert("Error: " + error.code + " " + error.message);
+                }
+            })
+
+        return "Completing Your Request";
     }
-    
-    function addPlayer(username, id, gameData) {
+
+    socket.run.on('getActiveGames', function(res){
+        console.log(["Get Active Games", res]);
+        socket.data.length = 0;
+        res.forEach(function(e,i,a){
+            // Send Each Item To Data Array
+            // console.log(["Pusing All Active Games To socket.data"]);
+            // Push Each Game into Array
+            if (e.length <=0 ) console.log(["Witholding Null Value", e]);
+            // Reset Current Games List
+            socket.data.push(e);
+        });
+        console.log(['Pushed Data into socket.data'], ['Socket.Data', socket.data])
+    })
+
+
+
+    socket.run.on('GameData', function(game){
+        console.log(["Got Update Game Data -- Game  --->", game]);      
+// PUSHING TO SOCKET.CURRENTGAME
+        // If Current Game is Empty Push
         
-    }
+        // Handle Game Data To
+        // Be Updated
+        handle(game)
+        
+        // Push updated Game State
+        // Log Current Game State
+        console.warn(['Updated Current Game'], ['socket.currentGame', socket.currentGame]);
+     
+    })
+
+    socket.run.on('addPlayer', function(username, gameData){
+        console.warn(['ATTEPTING TO ADD PLAYER', 'username', username, 'GameData', gameData]);
+        $rootScope.Game.addPlayer(username, id, game);
+
+    })
+
+    
 
     function validate(game) {
         // Compare socket.data with game.id
-
         socket.data.forEach(function(e,i,a){
             // Check Ids
             // e.id == game.id?
+            if (e.id == game.id) {
+                console.log(['IDS Match', 'allow update'], ['e.id'
+                    , e.id
+                    , 'game.id'
+                    , game.id]);
+////////// FULL GAME OUTPUT TO SERVER
+                socket.updateGame(game);
+            }
             console.log(['VALIDATION RESPONSE', 'E', e], [game.id]);
         })
-
+////////// FULL GAME OUTPUT TO SERVER
         // socket.updateGame(game);
+    }
+
+    function handle(game) {
+        if (socket.currentGame.length === 0) socket.currentGame.push(game);
+        else if (socket.currentGame[0].id == game.id) {
+            console.log(['current game IS same game data']
+                , [socket.currentGame[0].id == game.id]
+                , [socket.currentGame[0].id]
+                , [game.id]);
+            socket.currentGame.push(game);
+            socket.currentGame.shift();
+        } else {
+            console.log(['current game NOT same game data']
+                , ['Is Equal?', socket.currentGame[0].id == game.id]
+                , ['Currnt Game ID', socket.currentGame[0].id]
+                , ['Game Data ID', game.id]);
+        }
     }
 
 
@@ -186,13 +260,37 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
     window.techninja.actions.saveGame = socket.saveGame;
     window.techninja.actions.sendActiveGames = socket.sendActiveGames;
     window.techninja.actions.updateGame = socket.updateGame;
-    window.techninja.actions.addPlayer = addPlayer;
     window.techninja.actions.createGame = socket.createGame;
     window.techninja.actions.joinGame = socket.joinGame;
-    window.ADDPLAYER = addPlayer;
 
 
 
 
     return socket;
 });
+
+
+
+// socket.run.on('GameData', function(game){
+//     console.log(["Got Update Game Data -- Game  --->", game]);
+
+//     socket.data.forEach(function(data,i,a){
+//         // If E.ID == game.id,
+        
+//         // DEBUG LINES
+//         // if (e.id == game.id) console.log("Hey Were Equal", [e.id == game.id], [e.id, game.id]);
+//         // else console.log("This one's a dupe", [e.id]);
+   
+// // PUSHING TO SOCKET.CURRENTGAME
+//         // 
+//         if (!socket.currentGame.length)
+//             socket.currentGame.push(game);
+//         if (socket.currentGame[0].id == game.id)
+//             socket.currentGame.push(game);
+
+//         console.log(['Updated Current Game'], ['socket.currentGame', socket.currentGame]);
+        
+//         console.log(['Compare IDs'], ['socket.data el', data], ['game', game], ['pushing to socket.data?', split]);
+//     })
+ 
+// })

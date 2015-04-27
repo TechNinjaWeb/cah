@@ -1,0 +1,19 @@
+<div id="wrapper">
+    <div data-ng-repeat="card in game.cards.questions" id="playerPanel">
+        <div class="flip-container" style="display: block; zoom: 0.35;">
+            <div class="flipper">
+                <div class="card front">
+                    <!-- front content -->
+                    <div class="value">Cards Against Humanity</div>
+                    <div class="other">v1.0b</div>
+                </div>
+                <div class="card back white">
+                    <!-- back content -->
+                    <div test-card="value" class="value">{{ game.cards.value }}</div>
+                    <div test-card="other" class="other">{{ game.cards.id }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="czarPanel"></div>
+</div>

@@ -11,27 +11,45 @@ game.controller('GameNavController', function($scope, GameData, $rootScope, Logi
             sref: 'game.lobby',
             hash: '/lobby'
         },
-        levelOne: {
-            name: 'one',
-            sref: 'game.one',
-            hash: '/one'
+        player: {
+            name: 'player',
+            sref: 'game.player',
+            hash: '/player'
         },
-        levelTwo: {
-            name: 'two',
-            sref: 'game.two',
-            hash: '/two'
+        czar: {
+            name: 'czar',
+            sref: 'game.czar',
+            hash: '/czar'
         },
         options: {
             name: 'options',
             sref: 'game.options',
             hash: '/options'
+        },
+        login: {
+            name: 'login',
+            sref: 'home.login',
+            hash: '/login'
+        },
+        create: {
+            name: 'create',
+            sref: 'home.create',
+            hash: '/create'
         }
     }
 
     $scope.nav = nav;
-    $scope.username = $rootScope.Game.username;
+    $scope.username = $rootScope.username;
 
+    if ($rootScope.sessionUser) $scope.sessionUser = true;
+    else $scope.sessionUser = false;
+
+    
     $scope.login = function(username, password) {
         return LoginService.login(username, password);
+    }
+
+    $scope.logout = function() {
+        return LoginService.logout();
     }
 });

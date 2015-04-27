@@ -65,10 +65,15 @@ var GameData = mongoose.Schema({
 // Register the Model and bind the Default Schema
 var GameModel = mongoose.model('Model', GameData);
 
+// TECH NINJA SETTINGS
+// var APP_ID = "WB1IfdqCe1sBMBolX4B3EwiVho5331oCZbg9HHcT",
+//     MASTER_KEY = "WilhA7uah6ko8bRLfajYcaYkC22cpakAHu7UFgq9",
+//     API_KEY = 'HMRtZ755AARB0dHgtVIvUpmLSYzxm7iaXwaCQ7ng';
 
-var APP_ID = "WB1IfdqCe1sBMBolX4B3EwiVho5331oCZbg9HHcT",
-    MASTER_KEY = "WilhA7uah6ko8bRLfajYcaYkC22cpakAHu7UFgq9",
-    API_KEY = 'HMRtZ755AARB0dHgtVIvUpmLSYzxm7iaXwaCQ7ng';
+// ALPHANERDS SETTINGS
+    var APP_ID = "qMpbJ7CGg4grTxWXnxYPJy0kgY7jUZUP6W3dkuBQ",
+    MASTER_KEY = "H29KtdfOawMILC3TBYQmyKUNEiN1yBHUEHTzc7EZ",
+    API_KEY = 'YdibubAy4BC0YjYwaKf3zMg19x6XsoH0NnEyjjsM';
 
 var options = {
     app_id:APP_ID,
@@ -231,7 +236,7 @@ io.on('connection', function(socket) {
     socket.on('sendActiveGames', function(req) {
         console.log(['Send Active Games:', req]);
 
-        parse.findMany('GameData', { active: true }, function (err, res) {
+        parse.findMany('Games', { active: true }, function (err, res) {
             if (!res)return socket.emit('test-emitter', 'ERROR Ln:235'); 
             socket.emit('getActiveGames', res.results);
 
@@ -243,7 +248,7 @@ io.on('connection', function(socket) {
 
     socket.on('sendGame', function(game) {
         console.log(['Send Game To Client', game]);
-        parse.find('GameData', game, function (err, res) {
+        parse.find('Games', game, function (err, res) {
             socket.emit('GameData', res);
             console.log(['SEND GAME DATA END WITH RES --->', res]);
         });
@@ -260,9 +265,9 @@ io.on('connection', function(socket) {
             }
         } else params = game;
 
-        // console.log(["Params and Properties ---->>>"], [params]);
+        console.log(["Params and Properties ---->>>"], [params], ['BINGOOO', game]);
 
-        parse.insert('GameData', params, function (err, res) {
+        parse.insert('Games', params, function (err, res) {
             if (err) socket.emit('test-emitter', err);
             else io.sockets.emit('GameData', game);
             console.log(['GAME DATA SAYS:', 'Saved Game'], ['Error', err]);
@@ -272,13 +277,13 @@ io.on('connection', function(socket) {
 
     socket.on('updateGame', function(game) {
 
-        parse.find('GameData', game.id, function (err, res) {
+        parse.find('Games', game.id, function (err, res) {
             console.log(["Add Player Response From Parse", res, err]);
             // Send Parse Res To Client
 
             console.log(["EMIT GAMESTATE TO CLIENT", game])
 
-            parse.update('GameData', game.id, game.data, function (err, res) {
+            parse.update('Games', game.id, game.data, function (err, res) {
                 // console.log(["Response From Parse", res]);
                 console.log(["Called Update Game with data -->", game]);
 
@@ -291,18 +296,23 @@ io.on('connection', function(socket) {
         
     });
 
-    socket.on('addPlayer', function(game) {
-        console.log(['Adding Players To Game ---- >', game]);
-        // Parse Update
-        parse.update('GameData', game.id, game.data, function (err, res) {
-            console.log(["Add Player Response From Parse", res, err]);
-            // Send Parse Res To Client
-            game.funnyProperty = 'HAHAHAHAHAHAHAHAHA';
-            console.log(["EMIT GAMESTATE TO CLIENT", game])
-        });
+    // socket.on('addPlayer', function(game, userData) {
+    //     console.log(['Adding Players To Game ---- >', game, userData]);
+    //     // Parse Update
+    //     // game.data.players.push(userData);
+    //     parse.update('Games', game.id, game.data, function (err, res) {
+    //         console.log(["Add Player Response From Parse", res, err]);
+            
+    //         // Send Parse Res To Client
+    //         console.log(["EMIT GAMESTATE TO CLIENT", game])
 
-        io.sockets.emit('GameData', game);
-    });
+    //         // Send Update To Client
+    //         io.sockets.emit('GameData', game);
+    //     });
+
+    //     $rootScope.Game.addPlayer(userData.username, 
+        
+    // });
 
 
 

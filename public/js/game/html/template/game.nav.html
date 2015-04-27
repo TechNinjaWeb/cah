@@ -3,4 +3,5 @@
 <!-- <a class="nav-title" data-ui-sref="{{ nav.levelOne.sref }}">{{ nav.levelOne.name }}</a> -->
 <!-- <a class="nav-title" data-ui-sref="{{ nav.levelTwo.sref }}">{{ nav.levelTwo.name }}</a> -->
 <a class="nav-title" data-ui-sref="{{ nav.options.sref }}">{{ nav.options.name }}</a>
-<button data-ng-click="login()">Login</button> {{ username }}
+<button data-ng-hide="sessionUser" data-ui-sref="home.login">Login</button> {{ username }}
+<button data-ng-show="sessionUser" data-ng-click="logout()">Logout</button>

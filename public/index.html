@@ -8,6 +8,7 @@
     <meta name="author" content="4UmNinja">
     <link rel="stylesheet" href="css/style.css?v=1.0">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/card.animations.css">
     <base href="/">
     <!--[if lt IE 9]>
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -15,6 +16,7 @@
 </head>
 
 <body data-ng-app="cah">
+    <div id="fb-root" class="fb-root"></div>
     {{ server }}
     <!-- NAVIGATION -->
     <nav data-ui-view="nav"class="navigation"></nav>
@@ -51,17 +53,21 @@
     <script type='application/javascript' src="js/game/game.run.js"></script>
     <!-- ANGULAR MODULES -->
     <!-- App Modules -->
-    <script type='application/javascript' src="js/app/controllers/app/app.controller.js"></script>
-    <script type='application/javascript' src="js/app/controllers/app/app.nav.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/app.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/app.nav.controller.js"></script>
+    <script type='application/javascript' src="js/app/controllers/login.controller.js"></script>
     <!-- Game Modules -->
     <script type='application/javascript' src="js/app/services/login.service.js"></script>
     <script type='application/javascript' src="js/game/services/game.data.service.js"></script>
-    <script type='application/javascript' src="js/game/services/card.service.js"></script>
+    <script type='application/javascript' src="js/game/services/get.cards.service.js"></script>
     <script type='application/javascript' src="js/game/controllers/game.nav.controller.js"></script>
     <script type='application/javascript' src="js/game/controllers/game.controller.js"></script>
     <script type='application/javascript' src="js/game/controllers/game.lobby.controller.js"></script>
+    <script type='application/javascript' src="js/game/controllers/czar.controller.js"></script>
+    <script type='application/javascript' src="js/game/controllers/player.controller.js"></script>
     <script type='application/javascript' src="js/game/directives/game.hud.directive.js"></script>
-    <script type='application/javascript' src="js/game/directives/level.one.directive.js"></script>
+    <script type='application/javascript' src="js/game/directives/player.directive.js"></script>
+    <script type='application/javascript' src="js/game/directives/czar.directive.js"></script>
     <!-- Directives -->
     <!--<script type='application/javascript' src="js/app/filters/title.case.filter.js"></script>-->
     <!-- ADDITIONAL SERVICES -->

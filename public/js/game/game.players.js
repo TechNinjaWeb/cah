@@ -46,6 +46,9 @@ var player = window.player = function(na, _id){
 			getVal: function(atr) {
 				return this[atr];
 			},
+			sendMe: function(){
+				return this;
+			},
 			getName: function() {
 				return this.name;
 			},

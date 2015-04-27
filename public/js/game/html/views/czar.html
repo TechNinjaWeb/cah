@@ -1,0 +1,21 @@
+<div id="level-one">
+	Level One Test Page
+	Current Players: {{ games.players }}
+
+	<div id="game">
+        <div data-ng-repeat="card in cards.questionCards" data-ng-show="$index<10" class="flip-container"  ontouchstart="this.classList.toggle(" hover ');'="" style="zoom: 0.75;">
+            <div data-ng-click="newCard( card.id )" class="flipper">
+                <div level-one="front" front data-ng-hide="flipped" data-ng-click="newCard( card.id )" class="card front">
+                    <!-- front content -->
+                    <div class="value">Browser Vs The List</div>
+                    <div class="other">#</div>
+                </div>
+                <div level-one="back" type="'{{ card.type }}'" data-ng-hide="flipped" data-ng-click="newCard( card.id )" class="card back white">
+                    <!-- back content -->
+                    <div class="value">{{ card.text }}</div>
+                    <div class="other" data-ng-bind="game.cards.id">Card ID:</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

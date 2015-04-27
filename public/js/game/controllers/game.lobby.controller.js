@@ -2,9 +2,15 @@ game.controller('LobbyController', function lobbyController($scope, $rootScope, 
 	// console.log("Call from Card Service");
 	$scope.games={};
 	$scope.games.list = window.GAMELIST = GameData.data;
-	$scope.games.players = GameData.players;
+	$scope.games.players = $rootScope.Game.players;
+	$scope.waiting = window.waiting = false;
+
+	window.techninja.actions.stateReload = function() {
+		console.log(["Lobby Controller Says:", 'State Reloaded'])
+		$state.reload();
+	}
 	
-	GameData.run.emit('sendActiveGames')
+	GameData.run.emit('sendActiveGames');
 
 	$scope.createGame = function() {
 		// $rootScope.Game.actions.stepTwo();
@@ -18,17 +24,8 @@ game.controller('LobbyController', function lobbyController($scope, $rootScope, 
 		console.log(["Lobby Controller Says:", 'Joining Game', id])
 
 		GameData.joinGame(id);
-		$state.go('game.one');
+		$scope.waiting = true;
+		$state.go('game.lobby');
 	}
 
-	// socket.run.on('gameState', function(game){
- //        console.log(["Updating Game Data", game]);
- //        console.warn(["REMOVING OLD DATA", 'PRE'], [socket.data])
-        
- //        socket.data.shift();
- //        console.warn(["REMOVING OLD DATA", 'POST'], [socket.data])
- //        socket.data.push(game);
-
- //        $rootScope.$apply();
- //    })
 });

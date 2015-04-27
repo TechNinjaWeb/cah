@@ -3,7 +3,7 @@
 // Elements will be reusable in this mannor by allowing us
 // to pass ParseServices as a dependency in any of our controllers
 app
-    .service("LoginService", ['$state', '$rootScope', '$window', function($state, $rootScope, $window) {
+    .service("LoginService", ['$state', '$rootScope', 'GameData', function($state, $rootScope, socket) {
         var Login = {};
 
         Login.createUser = function(userDetails) {
@@ -30,7 +30,7 @@ app
             user.signUp(null, {
                 success: function(user) {
                     console.log("Redirecting You To Home State");
-                    $state.go('home.login');
+                    $state.go('home.app');
                     // $rootScope.reloadWindow();
                 },
                 error: function(user, error) {
@@ -50,14 +50,17 @@ app
             
             
             console.log(["Logging In User "+username]);
-            Parse.User.logIn(username || "tom@j.com", password || "wow", {
+            Parse.User.logIn(username || $rootScope.username || "Ray", password || "password", {
                 success: function(user) {
                     // Do stuff after successful login.
                     $rootScope.Game.username = user.attributes.username;
                     $rootScope.Game.userId = user.id;
                     
                     console.log(["User Signed In"], ['user', user], [$rootScope.Game.username, $rootScope.Game.userId]);
-                    $state.reload();
+
+                    socket.run.emit('adduser', $rootScope.Game.username);
+                    $rootScope.username = username;
+                    $state.go('home.app');
                 },
                 error: function(user, error) {
                     // The login failed. Check error to see why.
@@ -66,18 +69,21 @@ app
             });
         };
 
-        Login.logOut = function(sessionUser) {
+        Login.logout = function(sessionUser) {
             console.log("I heard your request to logout")
 
             if ($rootScope.sessionUser) {
-                $rootScope.ParseUser.logOut();
+                Parse.User.logOut();
+                
                 console.log("User Logged Out");
-                $state.go('home.index');
-                $rootScope.reloadWindow();
+                
+                $rootScope.username = 'Illegal Alien';
+                $rootScope.userId = '007';
+                $state.go('home.app');
             }
             else {
                 console.log("Please Login");
-                $state.go('login');
+                $state.go('home.login');
             }
         };
 
