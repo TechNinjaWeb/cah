@@ -82,25 +82,6 @@ var options = {
 
 var parse = new Parse(options);
 
-
-// parse.insertCustom('users', { 
-//   username: 'tom@j.com', 
-//   password: 'wow'
-// }, function (err, response) {
-//   console.log(response);
-// });
-
-// the Foo with id = 'someId'
-// parse.find('Foo', 'oetN4soa40', function (err, response) {
-//   console.log(response);
-// })
-
-// parse.delete('User', '9h5a6asuv9', function (err) {
-//   // nothing to see here
-//   console.log(["Error", err]);
-// });
-
-
 var activeUsers = {},
     gameRooms = {};
     gameRooms.default = 'BiggerBlackerRoom';
@@ -174,8 +155,6 @@ io.on('connection', function(socket) {
     //         'userName': message.sender
     //     });
     // });
-
-
 
 
 	// List Users And Rooms
@@ -296,51 +275,81 @@ io.on('connection', function(socket) {
         
     });
 
-    // socket.on('addPlayer', function(game, userData) {
-    //     console.log(['Adding Players To Game ---- >', game, userData]);
-    //     // Parse Update
-    //     // game.data.players.push(userData);
-    //     parse.update('Games', game.id, game.data, function (err, res) {
-    //         console.log(["Add Player Response From Parse", res, err]);
-            
-    //         // Send Parse Res To Client
-    //         console.log(["EMIT GAMESTATE TO CLIENT", game])
-
-    //         // Send Update To Client
-    //         io.sockets.emit('GameData', game);
-    //     });
-
-    //     $rootScope.Game.addPlayer(userData.username, 
+    socket.on('addPlayer', function(id, playerName) {
+        console.log(["Adding Player -"+ id], ['Player Name', playerName]);
         
-    // });
+        parse.find('Games', id, function (err, res) {
+            // console.log(["Response From Parse", res]);
+            console.log(["Adding Player To This Game -->", res
+                , 'res.players', res.attributes.players]);
+
+                var player = {};
+                player[playerName] = {score: 0, cards: []};
+                
+                res.attributes.players.push(player)
+
+                console.log(['Added Player to Res', 'Saving new response', res]);
 
 
+            parse.update('Games', id, _res, function (_err, _res) {
+                console.log(["Added Player Successful", _res, _err]);
+
+                io.sockets.emit('test-emitter', ['Data Deleted For ID -'+id]);
+            });
+
+            console.log(['Added Player To Game ID: '+id, 'With Name: ', playerName]);
+        });
+    });
+
+    socket.on('deactivateGame', function(id) {
+        console.log(['Got Game ID to Deactivate', id]);
+        var game = {
+            active: false,
+            waiting: false,
+            players: [],
+            state :'dead',
+            currentScore: []
+        }
+
+        parse.update('Games', id, game, function (_err, _res) {
+            // console.log(["Response From Parse", res]);
+            console.log(["Deactivating Game -->", _res]);
+
+            io.sockets.emit('test-emitter', ['Data Deleted For ID -'+id]);
+            console.log(['Deactivated Game ID: '+id]);
+        });
+    });
+
+    socket.on('quitGame', function(id, playerName) {
+        console.log(["Quit Game", id, playerName]);
+        
 
 
-    // // Create A Room
-    // socket.on('createRoom', function(room) {
-    //     gameRoom.push(room);
-    //     socket.emit('updategameRoom', gameRoom, socket.room);
-    //     console.log('Update All Users with New Rooms', gameRoom, socket.room);
-    // });
+        parse.find('Games', id, function (_err, _res) {
+            // console.log(["Response From Parse", res]);
+            console.log(["Remove Player From This Game -->", _res
+                , '_res.players', _res.players]);
 
-    // // Switch Rooms
-    // socket.on('switchRoom', function(newroom) {
-    //     var oldroom;
-    //     oldroom = socket.room;
-    //     socket.leave(socket.room);
-    //     socket.join(newroom);
-    //     socket.emit('updatechat', 'you have connected to ' + newroom);
-    //     socket.broadcast.to(oldroom).emit('updatechat', socket.username + ' has left this room');
-    //     socket.room = newroom;
-    //     socket.broadcast.to(newroom).emit('updatechat', socket.username + ' has joined this room');
-    //     socket.emit('updategameRoom', gameRoom, newroom);
-    // });
+                _res.players.forEach(function(e,i,a){
+                    console.log(['Loop Iteration -', i], ['Player', e], ['Array of Players', a]);
+                    console.log(['Does Requester Equal This Player?', e.hasOwnProperty(playerName)]);
+                    
+                    if (e.hasOwnProperty(playerName)) a.splice(i,1);
+                    console.log(['Deleted User ---->', e]);
+                });
 
-    // socket.on('privateMessage', function(username, message) {
-    //     socket.broadcast.to(username).emit(message);
-    //     console.log("Private Message to: " + username);
-    // });
+                console.log(['Deleted Player', 'Saving new response', _res]);
+
+
+            parse.update('Games', id, _res, function (e, r) {
+                console.log(["Delete Successful", r, e]);
+
+                io.sockets.emit('test-emitter', ['Data Deleted For ID -'+id]);
+            });
+
+            console.log(['Deactivated Game ID: '+id]);
+        });
+    });
 
     socket.on('disconnect', function(channel) {
         console.log("User Left", channel);
@@ -349,149 +358,6 @@ io.on('connection', function(socket) {
         //     delete gameRooms[initiatorChannel];
         // }
     });
-
-
-    // socket.on('new-channel', function(data) {
-    //     console.log("NEW-CHANNEL DATA", data);
-    //     if (!gameRooms[data.channel]) {
-    //         initiatorChannel = data.channel;
-    //     }
-    //     console.log("SERVER DATA", data)
-    //     gameRooms[data.channel] = data.channel;
-    //     onNewNamespace(data.channel, data.sender);
-    // });
-
-
-    // function onNewNamespace(channel, sender) {
-    //     console.log("ONNEWNAMESPACE -- Client Calling for new channel, channel & sender", channel, sender)
-    //     io.of('/' + channel).on('connection', function(socket) {
-    //         var username;
-    //         if (io.isConnected) {
-    //             io.isConnected = false;
-    //             socket.emit('connect', true);
-    //             console.log("User Is Now Connected To: ")
-    //         } else console.log("User Not Connected Socket: ", socket)
-
-    //         socket.on('message', function(data) {
-    //             console.log("Message Event - With Data: ", data)
-    //             if (data.sender == sender) {
-    //                 if (!username) username = data.data.sender;
-
-    //                 socket.broadcast.emit('message', data.data);
-    //             }
-    //         });
-
-    //         socket.on('disconnect', function() {
-    //             if (username) {
-    //                 socket.broadcast.emit('user-left', username);
-    //                 username = null;
-    //             }
-    //         });
-    //     });
-
-
-    // }
-
-    
-
-
-
-
-
-
-
-
-
-    // Future Implementation
-    // Mongo DB 
-
-    // router.route('/GameData')
-    // // Define the GET HTTP Verb Actions
-    // .get(function(req, res) {
-    //     // Get All GameModel Data
-    //     console.log("Target Hit Route", req);
-    //     GameModel.find(function(err, requestedData) {
-    //         // If Error send, else send requested data
-    //         !!err ? res.send(err) : res.send(requestedData);
-    //     })
-    // })
-    // // Define the POST HTTP Verb Actions
-    // .post(function(req, res) {
-    //     // Create New Instantiation of Schema
-    //     // and set properties
-
-
-
-
-
-    //     console.log(["GAME DATA REQUEST", req.body || req.params]);
-
-    //     var insertInTable = new GameModel({
-    //         username: req.params.username,
-    //         gameData: req.params.gameData
-    //     });
-
-    //     insertInTable.save(function(err, saved) {
-    //         console.log("saved._id", saved._id);
-    //         !!err ? res.send(err) : res.send({
-    //             message: "Added Data",
-    //             id: saved._id
-    //         });
-    //     });
-    // });
-
-
-
-
-    // // Register New Dynamic Route for ID
-    // router.route('/GameData/:id')
-    // // Define the GET HTTP Verb Actions
-    //     .get(function(req, res) {
-    //         // Get Result Equal to ID
-    //         GameModel.findOne(function(err, requestedData) {
-    //             // If Error send, else send requested data
-    //             !!err ? res.send(err) : res.send(requestedData);
-    //         })
-    //     })
-    //     // Define the PUT HTTP Verb Actions
-    //     .put(function(req, res) {
-    //         // Find the Data Object Equal to the
-    //         // ID from the req.params object
-    //         GameModel.findOne({
-    //             _id: req.params.id
-    //         }, function(err, requestedData) {
-    //             // Set the Data equal to
-    //             // new requested user input 
-    //             requestedData.name = req.body.name;
-    //             requestedData.color = req.body.color;
-    //             // If Error send, else save requested data
-    //             requestedData.save(function(err) {
-    //                 !!err ? res.send(err) : res.send({
-    //                     message: "Updated Data",
-    //                     id: req.params.id
-    //                 });
-    //             });
-    //         })
-    //     })
-    //     // Define the DELETE HTTP Verb Actions
-    //     .delete(function(req, res) {
-    //         // Find the Data Object Equal to the
-    //         // ID from the req.params object
-    //         GameModel.remove({
-    //             _id: req.params.id
-    //         }, function(err, requestedData) {
-    //             // If Error send, else delete requested data
-    //             !!err ? res.send(err) : res.json({
-    //                 message: "Deleted Data",
-    //                 id: req.params.id
-    //             });
-    //         });
-
-    //     });
-    // 
-    
-
-
 
 });
 

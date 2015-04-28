@@ -5,9 +5,7 @@ app
         $scope.alias = 'Login Controller';
         if ($rootScope.sessionUser) $scope.sessionUser = true; //console.log(["Session User", "Changing State To Lobby"]);
 
-        $scope.currentUsername = $rootScope.currentUser;
-
-        $scope.username = $rootScope.sessionUserName || "User Name";
+        $scope.username = $rootScope.username;
         $scope.password = "password";
         $scope.firstName = "First Name";
         $scope.lastName = "Last Name";
@@ -48,8 +46,7 @@ app
         };
 
         $scope.logout = function() {
-            Login.logout($rootScope.sessionUser);
-            return $state.reload(); 
+            return Login.logout(Parse.User.current());
         };
 
         $scope.createUser = function(username, firstName, lastName, email, password) {
@@ -61,16 +58,46 @@ app
             user.email = email;
             user.password = password;
 
-            console.log("Running Create With Data", user)
+            console.log("Running Create With Data", user);
+
             return Login.createUser(user);
+        };
+
+        $scope.facebookLogin = function() {
+            Parse.FacebookUtils.logIn("public_profile,user_likes,email,read_friendlists,user_location", {
+                success: function(user) {
+                    if (!user.existed()) {
+                        console.log("User signed up and logged in through Facebook!");
+                        $rootScope.collectFacebookData(user);
+                        console.log(user, "also running FB User Details Save");
+
+                        console.log($rootScope.sessionUser); // Parse User Current Object
+
+                        console.log("User Details Saved");
+
+                        $rootScope.reloadWindow();
+                    }
+                    else {
+                        console.log("User logged in through Facebook!");
+                        // Recapture User Data If User Is Already in Parse DB
+                        $rootScope.collectFacebookData(user);
+
+                        console.log("THIS IS USER OBJECT", user);
+
+                        $rootScope.reloadWindow();
+                    }
+                },
+                error: function(user, error) {
+                    alert("User cancelled the Facebook login or did not fully authorize.");
+                }
+            });
         };
 
       
         // Test Alert button
         $scope.alert = function() {
-            console.log("You've hit the LoginCtrl alert button");
-            console.log(ParseUser);
-            console.log(Login);
+            console.log("You've hit the Parse Current User alert button");
+            console.log(Parse.User.current());
         };
 
         $scope.makeAdmin = window.techninja.actions.makeAdmin = function() {

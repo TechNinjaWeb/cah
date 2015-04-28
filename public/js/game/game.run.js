@@ -26,25 +26,6 @@ game.run(function($rootScope){
 		, actions.stepEight = stepEight
 		$rootScope.Game.actions = actions;
 
-	var frame = 0;
-	// Loop Test!
-	function loopTest() {
-		// Begn Test Case;
-		if (frame>100) { test(); frame = 0 }
-		else frame ++;
-		console.log("Hey Bro!");
-		function test() {
-			stepOne();
-			stepTwo();
-			stepThree();
-			stepFour();
-			stepFive();
-			stepSix();
-			stepSeven();
-			stepEight();
-
-		}
-	}
 
 	// Begin Setup
 	if (Game.waiting) Game.setState('begin-game');

@@ -39,10 +39,7 @@ game.controller('GameNavController', function($scope, GameData, $rootScope, Logi
     }
 
     $scope.nav = nav;
-    $scope.username = $rootScope.username;
-
-    if ($rootScope.sessionUser) $scope.sessionUser = true;
-    else $scope.sessionUser = false;
+    !!$rootScope.sessionUser ? $scope.sessionUser = true : $scope.sessionUser = false;
 
     
     $scope.login = function(username, password) {

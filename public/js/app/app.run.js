@@ -1,8 +1,7 @@
-app.run(function($rootScope, $timeout){
+app.run(function($rootScope, $timeout, $window){
 	// console.log('Parse bootstrap complete');
 
         // console.log('Initializing FBLogin ...');
-
         window.fbAsyncInit = function() {
             console.log('FB Init has been called');
             Parse.FacebookUtils.init({ // this line replaces FB.init({
@@ -14,37 +13,6 @@ app.run(function($rootScope, $timeout){
             // Run code after the Facebook SDK is loaded.
             // Run check to see if current user is Admin
             // $rootScope.checkAdmin();
-
-            $rootScope.facebookLogin = function() {
-
-                Parse.FacebookUtils.logIn("public_profile,user_likes,email,read_friendlists,user_location", {
-                    success: function(user) {
-                        if (!user.existed()) {
-                            console.log("User signed up and logged in through Facebook!");
-                            $rootScope.collectFacebookData(user);
-                            console.log(user, "also running FB User Details Save");
-
-                            console.log($rootScope.sessionUser); // Parse User Current Object
-
-                            console.log("User Details Saved");
-
-                            $rootScope.reloadWindow();
-                        }
-                        else {
-                            console.log("User logged in through Facebook!");
-                            // Recapture User Data If User Is Already in Parse DB
-                            $rootScope.collectFacebookData(user);
-
-                            console.log("THIS IS USER OBJECT", user);
-
-                            $rootScope.reloadWindow();
-                        }
-                    },
-                    error: function(user, error) {
-                        alert("User cancelled the Facebook login or did not fully authorize.");
-                    }
-                });
-            };
         };
 
         (function(d, s, id) {
@@ -187,7 +155,7 @@ app.run(function($rootScope, $timeout){
             var query = new Parse.Query("User");
             query.equalTo("username", "Ray");
 
-            if ($rootScope.sessionUserName === "Ray" || true) { // Temporary Admin Status Set
+            if ($rootScope.sessionUserName === "Ray") { // Temporary Admin Status Set
                 query.find({
                     success: function(results) {
                         console.log("Successfully retrieved " + results.length + " Admin Username.");
@@ -259,38 +227,18 @@ app.run(function($rootScope, $timeout){
 
         };
 
-        // console.log('Finished Initializing FBLogin');
 
         // Define and Extend the Basic Parse User
-        var User = Parse.User.extend({});
         // Create a $rootScope shortcut
-        $rootScope.ParseUser = User;
         // Loading Parse.User.current() into rootScope
         $rootScope.sessionUser = Parse.User.current();
-        console.log(["$session user", $rootScope.sessionUser]);
-        // $rootScope.username = 'Max Payne';
-
-        if ($rootScope.sessionUser) {
-            $rootScope.sessionUserName = Parse.User.current().get('username');
-
-            console.log("sessionUser Logged In has triggered attempted to Create Roles");
-            $rootScope.createRoles();
-
-        }
-
-        // Get Username and load it into a variable
-        if ($rootScope.sessionUser) {
-            
-            $rootScope.username = Parse.User.current().get('username');
-            $rootScope.sessionUserId = $rootScope.userId = $rootScope.sessionUser.id;
-            
-            console.log("Current Username Is: " + $rootScope.currentUsername+ " and your ID is: "+$rootScope.sessionUserId);
-        }
+        
+        console.warn(["Got Session User", $rootScope.sessionUser]);
 
         // Check For Administrator Account
         // and set it to Admin
-        if ($rootScope.currentUsername == "Phree Lyfe") {
-            $rootScope.techNinjaAdminName = $rootScope.currentUsername;
+        if ($rootScope.username == "Phree Lyfe") {
+            $rootScope.techNinjaAdminName = $rootScope.username;
             console.log("This will make " + $rootScope.techNinjaAdminName + " an Admin. Function coming soon!");
             
             $rootScope.techNinjaAdmin = true;
@@ -301,8 +249,41 @@ app.run(function($rootScope, $timeout){
         }
         
         // Declare Database Model Variables
-        var ParseUserClass = Parse.Object.extend("User");
-     
-        
+
+        $rootScope.updateRootScope = function() {
+        	// if ($rootScope.sessionUser) {
+	        //     $rootScope.sessionUserName = Parse.User.current().get('username');
+
+	        //     console.log("sessionUser Logged In has triggered attempted to Create Roles");
+	        //     $rootScope.createRoles();
+
+	        // }
+
+	        // Get Username and load it into a variable
+	        if (Parse.User.current()) {
+	            
+	            $rootScope.username = Parse.User.current().get('username');
+	            $rootScope.sessionUserId = $rootScope.userId = Parse.User.current().id;
+	            
+	            console.log("Current Username Is: " + $rootScope.username+ " and your ID is: "+$rootScope.sessionUserId);
+	        } else {
+
+	            $rootScope.username = 'Illegal Alien';
+	            $rootScope.sessionUserId = '007';
+	            
+	            console.log("Setting Default User: " + $rootScope.username+ " and your ID is: "+$rootScope.sessionUserId);
+	        }
+        }
+
+        $rootScope.checkLoggedIn = function() {
+        	if (Parse.User.current()) $rootScope.loggedIn = true;
+        	else $rootScope.loggedIn = false;
+        	console.log(["Is User Logged In?", $rootScope.loggedIn]);
+
+        	$rootScope.updateRootScope()
+        	
+        	return $rootScope.loggedIn;
+        }
+        $rootScope.checkLoggedIn(); // Auto Run This Function, Each Time App Loads
        
 });

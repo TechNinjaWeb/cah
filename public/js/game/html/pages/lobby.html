@@ -1,6 +1,4 @@
 <!-- Game Lobby Page -->
-<div id="controls">
-	<button data-ng-show="!waiting" data-ui-sref="game.join">Join A Game</button>
-	<button data-ng-show="!waiting" data-ui-sref="game.join">Quit Game</button>
-	<button data-ui-sref="game.create">Create Game</button>
-</div>
+<button data-ng-hide="waiting" data-ui-sref="game.join">Join A Game</button>
+<button data-ng-hide="waiting" data-ui-sref="game.create">Create Game</button>
+<button data-ng-show="waiting" data-ng-click="quitGame()">Quit Game</button>

@@ -15,17 +15,13 @@
                 <!-- <button id="create-account" ui-sref="home.login.create" ng-href="/login/create">Create</button>
                 <button id="login" ng-click="login(username, pass)">Login</button> -->
 
-
                 <button ng-show="!sessionUser" data-ui-sref="home.login.create" class="btn btn-warning">Create Account</button>
-                <button ng-show="!sessionUser" ui-sref="home.login" ng-href="/login" class="btn btn-info">Login</button>
+                <button ng-show="!sessionUser" data-ng-click="login(username, password)" ng-href="/login" class="btn btn-info">Login</button>
                 <button ng-show="!sessionUser" ng-click="facebookLogin()" class="btn btn-info">FaceBook Login</button>
                 <button ng-show="sessionUser" ng-click="logout()" class="btn btn-success">Logout</button>
-                <button ng-hide="!techNinjaAdminName" ng-click="makeAdmin()" class="btn btn-primary">Make Admin</button>
                 <!--Test Admin Button-->
                 <!--This will check weather the makeAdmin() function is secure and will work-->
                 <!--only for the user listed as techNinjaAdmin-->
-                <button ng-hide="!sessionUser || techNinjaAdmin" ng-click="makeAdmin()" class="btn btn-warning">Test Make Admin Button</button>
-
             </div>
         </div>
 

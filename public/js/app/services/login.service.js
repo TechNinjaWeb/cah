@@ -30,8 +30,10 @@ app
             user.signUp(null, {
                 success: function(user) {
                     console.log("Redirecting You To Home State");
-                    $state.go('home.app');
                     // $rootScope.reloadWindow();
+                    $state.go('home.app');
+                    $rootScope.checkLoggedIn();
+// 
                 },
                 error: function(user, error) {
                     // Show the error message somewhere and let the user try again.
@@ -47,9 +49,8 @@ app
             // most recent data from the user
             // Grab the username & password and send it
             // into a Parse.User.logIn function
-            
-            
             console.log(["Logging In User "+username]);
+            
             Parse.User.logIn(username || $rootScope.username || "Ray", password || "password", {
                 success: function(user) {
                     // Do stuff after successful login.
@@ -59,8 +60,13 @@ app
                     console.log(["User Signed In"], ['user', user], [$rootScope.Game.username, $rootScope.Game.userId]);
 
                     socket.run.emit('adduser', $rootScope.Game.username);
-                    $rootScope.username = username;
+                    
+                    // $rootScope.username = username;
+
+                    // $rootScope.reloadWindow();
                     $state.go('home.app');
+                    $rootScope.checkLoggedIn();
+// Reloading Window
                 },
                 error: function(user, error) {
                     // The login failed. Check error to see why.
@@ -76,10 +82,11 @@ app
                 Parse.User.logOut();
                 
                 console.log("User Logged Out");
-                
-                $rootScope.username = 'Illegal Alien';
-                $rootScope.userId = '007';
+
+                // $rootScope.reloadWindow();
                 $state.go('home.app');
+                $rootScope.checkLoggedIn();
+// Reloading Window
             }
             else {
                 console.log("Please Login");

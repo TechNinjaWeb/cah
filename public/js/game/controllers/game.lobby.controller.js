@@ -1,20 +1,15 @@
 game.controller('LobbyController', function lobbyController($scope, $rootScope, $state, GameData){
 	// console.log("Call from Card Service");
 	$scope.games={};
-	$scope.games.list = window.GAMELIST = GameData.data;
+	$scope.games.list = window.GAMELIST = GameData.activeGames;
 	$scope.games.players = $rootScope.Game.players;
-	$scope.waiting = window.waiting = false;
-
-	window.techninja.actions.stateReload = function() {
-		console.log(["Lobby Controller Says:", 'State Reloaded'])
-		$state.reload();
-	}
+	$scope.waiting = $rootScope.Game.waiting;
 	
 	GameData.run.emit('sendActiveGames');
 
 	$scope.createGame = function() {
-		// $rootScope.Game.actions.stepTwo();
-		console.log(["Lobby Controller Says:", 'Game Created'])
+		console.log(["Lobby Controller Says:", 'Game Created']);
+
 		GameData.createGame();
 	    $state.go('game.lobby');
 	}
@@ -24,8 +19,17 @@ game.controller('LobbyController', function lobbyController($scope, $rootScope, 
 		console.log(["Lobby Controller Says:", 'Joining Game', id])
 
 		GameData.joinGame(id);
-		$scope.waiting = true;
+		$rootScope.Game.setVal('waiting', true);
+		$state.reload();
 		$state.go('game.lobby');
 	}
 
+	$scope.quitGame = function() {
+		console.log(["Lobby Controller Says:", 'Game Created']);
+
+		GameData.quitGame();
+		$rootScope.Game.setVal('waiting', false);
+		$state.reload();
+	    $state.go('game.lobby');
+	}
 });
