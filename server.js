@@ -233,8 +233,8 @@ io.on('connection', function(socket) {
         });
     });
 
-    socket.on('saveGame', function(game) {
-        console.log(['Save Game Data In -->', game]);
+    socket.on('saveGame', function(game, user) {
+        console.log(['Save Game Data In -->', game], ['USER DATA', user]);
         var params = {};
         if (typeof game == 'object') {
             console.log(["GAME OBJECT TO SAVE", 'Should look like server data', game], ['type', typeof game, 'Has Active Prop', game.hasOwnProperty('active')])
@@ -275,31 +275,31 @@ io.on('connection', function(socket) {
         
     });
 
-    socket.on('addPlayer', function(id, playerName) {
-        console.log(["Adding Player -"+ id], ['Player Name', playerName]);
+    // socket.on('addPlayer', function(gameId, playerId) {
+    //     console.log(["Adding Player -"+ gameId], ['Player Name', playerId]);
         
-        parse.find('Games', id, function (err, res) {
-            // console.log(["Response From Parse", res]);
-            console.log(["Adding Player To This Game -->", res
-                , 'res.players', res.attributes.players]);
+    //     parse.find('Games', gameId, function (err, res) {
+    //         // console.log(["Response From Parse", res]);
+    //         console.log(["Adding Player To This Game -->", res
+    //             , 'res.players', res.attributes.players]);
 
-                var player = {};
-                player[playerName] = {score: 0, cards: []};
+    //             var player = {};
+    //             player[playerId] = {score: 0, cards: []};
                 
-                res.attributes.players.push(player)
+    //             res.attributes.players.push(player)
 
-                console.log(['Added Player to Res', 'Saving new response', res]);
+    //             console.log(['Added Player to Res', 'Saving new response', res]);
 
 
-            parse.update('Games', id, _res, function (_err, _res) {
-                console.log(["Added Player Successful", _res, _err]);
+    //         parse.update('Games', gameId, _res, function (_err, _res) {
+    //             console.log(["Added Player Successful", _res, _err]);
 
-                io.sockets.emit('test-emitter', ['Data Deleted For ID -'+id]);
-            });
+    //             io.sockets.emit('addPlayer', ['Data Deleted For ID -'+gameId]);
+    //         });
 
-            console.log(['Added Player To Game ID: '+id, 'With Name: ', playerName]);
-        });
-    });
+    //         console.log(['Added Player To Game ID: '+gameId, 'With Name: ', playerId]);
+    //     });
+    // });
 
     socket.on('deactivateGame', function(id) {
         console.log(['Got Game ID to Deactivate', id]);
@@ -331,7 +331,7 @@ io.on('connection', function(socket) {
                 , '_res.players', _res.players]);
 
                 _res.players.forEach(function(e,i,a){
-                    console.log(['Loop Iteration -', i], ['Player', e], ['Array of Players', a]);
+                    console.Log(['Loop Iteration -', i], ['Player', e], ['Array of Players', a]);
                     console.log(['Does Requester Equal This Player?', e.hasOwnProperty(playerName)]);
                     
                     if (e.hasOwnProperty(playerName)) a.splice(i,1);
@@ -348,6 +348,30 @@ io.on('connection', function(socket) {
             });
 
             console.log(['Deactivated Game ID: '+id]);
+        });
+    });
+
+    socket.on('loggedIn', function(id) {
+        console.log(["User - "+id + " Logged In"]);
+
+        parse.find('Games', {"active": true}, function (err, activeGames) {
+            console.log(["Got Active Games", activeGames]);
+            
+            activeGames(function(e,i,a){
+                console.log(["Logging Active Games", "Find User In Game"]
+                    , ["Iteration - " + i]
+                    , ["Game", e]
+                    , [])
+            });
+
+
+
+                socket.emit('GameData', activeGames)
+         
+
+            socket.emit('test-emitter', ['Game Pushed?', !!activeGames]);
+            console.log(['Log In Check Complete']);
+
         });
     });
 
