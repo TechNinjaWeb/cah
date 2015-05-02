@@ -320,6 +320,10 @@ io.on('connection', function(socket) {
         });
     });
 
+    socket.on('cah', function(id) {
+        console.log("Fuck Stephen Harper!");
+    });
+
     socket.on('quitGame', function(id, playerName) {
         console.log(["Quit Game", id, playerName]);
         
