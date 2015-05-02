@@ -97,22 +97,6 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         console.log(["Deactivated Game"])
     }
 
-    // socket.addPlayer = function(username, id, game) {
-    //     console.log(["ATTEMPTING TO ADD THIS CHARACTER", username, id, game]);
-
-    //     var player = {
-    //         userId: id,
-    //         name: username,
-    //         cards: [],
-    //         choice: [],
-    //         isCzar: false,
-    //         state: 'player-created-'+username,
-    //         points: 0,
-    //     };
-    //     // Emit New Player Data
-    //     socket.run.emit('addPlayer', game.id, Parse.User.current().id);
-    // }
-
     socket.joinGame = function(id) {
         // Query Parse To Find The Game
         var query = new Parse.Query("Games");
@@ -274,12 +258,6 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         console.warn(['Updated Current Game'], ['socket.currentGame', socket.currentGame]);
      
     })
-
-    // socket.run.on('addPlayer', function(username, gameData){
-    //     console.warn(['ATTEPTING TO ADD PLAYER', 'username', username, 'GameData', gameData]);
-    //     $rootScope.Game.addPlayer(username, id, game);
-
-    // })
 
     // Game Data Factory
     window.techninja = {};
