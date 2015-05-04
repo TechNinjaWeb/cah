@@ -14,13 +14,14 @@ game.controller('LobbyController', function lobbyController($scope, $rootScope, 
 	    $state.go('game.lobby');
 	}
 
-
 	$scope.joinGame = function(id) {
 		console.log(["Lobby Controller Says:", 'Joining Game', id])
 
 		GameData.joinGame(id);
 		$rootScope.Game.setVal('waiting', true);
-		$state.reload();
+		$rootScope.Game.waiting = true;
+		
+		setTimeout(function(){$state.reload();}, 200)
 		$state.go('game.lobby');
 	}
 
@@ -29,7 +30,9 @@ game.controller('LobbyController', function lobbyController($scope, $rootScope, 
 
 		GameData.quitGame();
 		$rootScope.Game.setVal('waiting', false);
-		$state.reload();
+		$rootScope.Game.waiting = false;
+		
+		setTimeout(function(){$state.reload();}, 200)
 	    $state.go('game.lobby');
 	}
 });

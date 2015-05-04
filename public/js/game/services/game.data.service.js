@@ -8,19 +8,99 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         socketFactory();
         window.currentGame= socket.currentGame;
 
-
     if (Parse.User.current()) $rootScope.Game.username = Parse.User.current().username;
     else $rootScope.Game.username = 'Tech Ninja';
 
-    var deferred = $q.defer();
-    // console.log(["User Socket Factory", socket]);
+    // Emit Get All Data On First Enter
+    // socket.run.emit('sendAll');
 
     socket.run.forward('error');
     socket.run.forward('server', socket.server);
 
-    // Emite Get All Data On First Enter
-    socket.run.emit('sendAll');
-    if (Parse.User.current() && Parse.User.current())
+    // KEY LISTENERS
+    socket.run.on('connect', function(){
+        console.log(["User Connected"]);
+    })
+
+    socket.run.on('server', function(res){
+        console.log(["Server Says"], [res, 'message:', res.message]);
+    })
+
+    // Working When Emitter On Page
+    socket.run.on('getAll', function(data){
+        console.log(["Listing data Users", data]);
+    })
+
+    socket.run.on('getRooms', function(data){
+        console.log(["Listing All Rooms", all]);
+    })
+
+    socket.run.on('getUsers', function(allUsers){
+        console.log(["Listing Users", allUsers]);
+    })
+
+    socket.run.on('getUser', function(user){
+        console.log(["User Object From Server: ", user]);
+    })
+
+
+    socket.run.on('test-emitter', function(all){
+        console.log(["Test Emitter", all]);
+        
+        // Future Hook Event
+        // $rootScope.Game.actions.stepOne();
+    })
+
+
+    // Update Active Games Array?
+    socket.run.on('getGame', function(game){
+        console.log(["Here's Your Game", game]);
+        // check if it exists and update socket.activeGames
+        updateActiveGames(game);
+    })
+
+    function updateActiveGames(game) {
+        // Compare socket.activeGames with game.id
+        socket.activeGames.forEach(function(e,i,a){
+            console.log(['VALIDATING GAME','game.id'], [game.id]);
+            // Check Ids
+            // e.id == game.id?
+            if (e.id == game.id) {
+                console.log(['IDS Match', 'allow update'], ['e.id'
+                    , e.id
+                    , 'game.id'
+                    , game.id]);
+////////// FULL GAME OUTPUT TO SERVER
+                socket.updateGame(game);
+            }
+        })
+    }
+
+    socket.run.on('getActiveGames', function(activeGames){
+        console.log(["Get Active Games", activeGames]);
+        
+        // Empty Our Current Array
+        socket.activeGames.length = 0;
+        // For Each New Game
+        // Add Data to socket.activeGames
+        activeGames.forEach(function(e,i,a){
+            // console.log(["Pusing All Active Games To socket.activeGames"]);
+
+            // Remove Any Null Refs
+            if (e.length <=0 ) console.log(["Witholding Null Value", e]);
+            // Push New Object To Socket.ActiveGames
+            socket.activeGames.push(e);
+        });
+        console.log(['Pushed Data into socket.activeGames'], ['Socket.Data', socket.activeGames])
+    })
+
+    socket.run.on('GameData', function(game){
+        console.log(["Got Update Game Data -- Game  --->", game]);      
+        // Handle Game Data From the Server
+        saveGameData(game);      
+        // Log Current Game State
+        console.warn(['Updated Current Game'], ['socket.currentGame', socket.currentGame]);
+    })
 
     // KEY FUNCTIONS
     socket.sendAll = function() {
@@ -59,7 +139,7 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
 
     socket.loggedIn = function(){
         console.log("Logged");
-        return socket.run.emit('loggedIn', Parse.User.current().id);
+        return socket.run.emit('loggedIn', $rootScope.userId);
     };
 
     socket.createGame = function() {
@@ -70,39 +150,18 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
             players: [],
             currentScore: [],
             specialOptions: {},
-            creator: Parse.User.current().id
+            creator: $rootScope.userId
         })
         // Send To Game View
         console.log(['Created Game', 'emited saveGame To Socket']);
     }
 
-    socket.quitGame = function() {
-        console.warn(["Quitting Game", socket.currentGame[0].id, "Player", $rootScope.username]);
-        console.warn(['Current Game', socket.currentGame[0]])
-        
-        socket.run.emit('quitGame', socket.currentGame[0].id, $rootScope.username);
-        socket.currentGame.length = 0;
-        
-        console.log(["Quit Game"])
-    }
-
-    socket.deactivateGame = function() {
-        console.warn(["Game Data:", 'Shutting Down Game'], ['Functions to Make'
-            , 'Destroy Current Game Save Array'
-            , 'Change Server active value to false']);
-
-        console.warn(['Current Game', socket.currentGame])
-        socket.run.emit('deactivateGame', socket.currentGame[0].id);
-        socket.currentGame.length = 0;
-        console.log(["Deactivated Game"])
-    }
-
     socket.joinGame = function(id) {
         // Query Parse To Find The Game
-        var query = new Parse.Query("Games");
-            query.equalTo('objectId', id);
+        var joinGame = new Parse.Query("Games");
+            joinGame.equalTo('objectId', id);
             
-            query.first({
+            joinGame.first({
             success: function(res) {
                 // Add New User And Save GameData
                 console.warn(["Found Game with ID - " + id])
@@ -113,22 +172,23 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
                     , ['How Many?', players.length]
                     , [players]);
                 
-                // Add Player To Virtual Game
+                // Build Player Object
                 var player = {};
-                player[Parse.User.current().id] = {score: 0, cards: []};
+                player[$rootScope.userId] = {score: 0, cards: []};
 
+                // Add Player to Parse Players List
                 // Push Player if none exist
                 if (!players.length) players.push(player);
-                // If Players exist, check that 
-                // this user isn't already added
-                players.forEach(function(e,i,a){
-                    console.log(["This Client is index of players list?"
-                        , 'Echo Users Name --', $rootScope.username
-                        , e.hasOwnProperty($rootScope.username)
-                        , 'Players', players]);
-
-                    !e.hasOwnProperty(Parse.User.current().id) ? players.push(player) : console.log("Player Already In List");
-                })
+                else players.forEach(function(e,i,a){
+                    console.log(["This Client is index of players list?"]
+                        , [ 'Echo Users Name --', $rootScope.userId ]
+                        , [ 'RootScope ID == to Iteration'+i+'s ID?', e.hasOwnProperty($rootScope.userId) ]
+                        , [ 'Players', players ]);
+                    // If Players exist, check that 
+                    // this user isn't already in the list
+                    // and add them to Parse's Players Array
+                    !e.hasOwnProperty($rootScope.userId) ? players.push(player) : console.log("Player Already In List");
+                });
                 // Save the new res
                 res.save({
                     success: function(_res) {
@@ -136,11 +196,12 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
                         $rootScope.Game.setVal('gameId', id);
 
                         console.warn(["Saved","Vaidate This Game Object To Update", _res.id, _res.attributes]);
-                        
+                        // Adding the Game ID to the Game Object
                         _res.attributes.id = _res.id;
-                        console.log(["Updated ID on attributes.id", _res], ['sending to validate']);
-//                      // SENDING TO VALIDATE
-                        handle(_res.attributes);
+                        console.log(["Updated ID on Game Data Object", _res], ['sending to validate']);
+//                      // ADDING THIS GAME TO OUR LOCAL
+                        // GAME SAVE ARRAY SOCKET.CURRENTGAME
+                        saveGameData(_res.attributes);
                     },
                     error: function(_res,_err) {
                         console.warn(['Error', _res,_err]);
@@ -157,33 +218,25 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         return "Completing Your Request";
     }
    
-
-    function validate(game) {
-        // Compare socket.activeGames with game.id
-        socket.activeGames.forEach(function(e,i,a){
-            console.log(['VALIDATING GAME','game.id'], [game.id]);
-            // Check Ids
-            // e.id == game.id?
-            if (e.id == game.id) {
-                console.log(['IDS Match', 'allow update'], ['e.id'
-                    , e.id
-                    , 'game.id'
-                    , game.id]);
-////////// FULL GAME OUTPUT TO SERVER
-                socket.updateGame(game);
-            }
-        })
-    }
-
-    function handle(game) {
+    // Add the Game That You've Joined
+    // Or that the server has given us
+    // To A Local Save Slot
+    function saveGameData(game) {
+        // If No Games Exits, Push Immediately
         if (socket.currentGame.length === 0) socket.currentGame.push(game);
+        // Else Match the Game Id's
         else if (socket.currentGame[0].id == game.id) {
-            console.log(['current game IS same game data']
-                , [socket.currentGame[0].id == game.id]
-                , [socket.currentGame[0].id]
-                , [game.id]);
+            console.log(['current game IS same Game Data in socket.current']
+                , 'socket.current.game.id ==>', [socket.currentGame[0].id]
+                , 'handling this game.id ==>', [game.id]);
+
+            
+            // Push new Game to last slot
             socket.currentGame.push(game);
+            // Remove Game in First Slot
             socket.currentGame.shift();
+            // Add Players To Local Game
+            addPlayers(game);
         } else {
             console.log(['current game NOT same game data']
                 , ['Is Equal?', socket.currentGame[0].id == game.id]
@@ -192,72 +245,38 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
         }
     }
 
-    // KEY LISTENERS
+    function addPlayers(game) {
+        // Add Player To Virtual Game
+        // $rootScope.Game.addPlayer($rootScope.username, $rootScope.userId)
+        game.players.forEach(function(e,i,a){
+            // Add Player To Virtual Game
+            console.log(["Player #"+i, e]);
 
-    socket.run.on('connect', function(){
-        console.log(["User Connected"]);
-    })
+            if (e.id != $rootScope.userId) $rootScope.Game.addPlayer('TEMP USER -'+i, e.id);
+            else console.log(["Player is in the list Already", e]);
+        })
+        console.log([ "Added Players to Virtual Game", $rootScope.Game.players ])
+    }
 
-    socket.run.on('server', function(res){
-        console.log(["Server Says"], [res, 'message:', res.message]);
-    })
-
-    // Working When Emitter On Page
-    socket.run.on('getAll', function(data){
-        console.log(["Listing data Users", data]);
-    })
-
-    socket.run.on('getRooms', function(data){
-        console.log(["Listing All Rooms", all]);
-    })
-
-    socket.run.on('getUsers', function(allUsers){
-        console.log(["Listing Users", allUsers]);
-    })
-
-    socket.run.on('getUser', function(user){
-        console.log(["User Object From Server: ", user]);
-    })
-
-
-    socket.run.on('test-emitter', function(all){
-        console.log(["Test Emitter", all]);
+    socket.quitGame = function() {
+        console.warn(["Quitting Game", socket.currentGame[0].id, "Player ID", $rootScope.userId]);
         
-        // Future Hook Event
-        // $rootScope.Game.actions.stepOne();
-    })
+        socket.run.emit('quitGame', socket.currentGame[0].id, $rootScope.userId);
+        socket.currentGame.length = 0;
+        
+        console.log(["Quit Game"], ['socket.currentGame ==>', socket.currentGame])
+    }
 
-    // Game Play Features
-    socket.run.on('getGame', function(game){
-        console.log(["Here's Your Game", game]);
-        // check if it exists and update socket.activeGames
-        validate(game);
-    })
+    socket.deactivateGame = function() {
+        console.warn(["Game Data:", 'Shutting Down Game'], ['Functions to Make'
+            , 'Destroy Current Game Save Array'
+            , 'Change Server active value to false']);
 
-    socket.run.on('getActiveGames', function(res){
-        console.log(["Get Active Games", res]);
-        socket.activeGames.length = 0;
-        res.forEach(function(e,i,a){
-            // Send Each Item To Data Array
-            // console.log(["Pusing All Active Games To socket.activeGames"]);
-            // Push Each Game into Array
-            if (e.length <=0 ) console.log(["Witholding Null Value", e]);
-            // Reset Current Games List
-            socket.activeGames.push(e);
-        });
-        console.log(['Pushed Data into socket.activeGames'], ['Socket.Data', socket.activeGames])
-    })
-
-    socket.run.on('GameData', function(game){
-        console.log(["Got Update Game Data -- Game  --->", game]);      
-        // Handle Game Data To
-        // Be Updated
-        handle(game);      
-        // Push updated Game State
-        // Log Current Game State
-        console.warn(['Updated Current Game'], ['socket.currentGame', socket.currentGame]);
-     
-    })
+        console.warn(['Current Game', socket.currentGame])
+        socket.run.emit('deactivateGame', socket.currentGame[0].id);
+        socket.currentGame.length = 0;
+        console.log(["Deactivated Game"])
+    }
 
     // Game Data Factory
     window.techninja = {};
@@ -273,7 +292,8 @@ game.service('GameData', function(socketFactory, $rootScope, $q){
     window.techninja.actions.createGame = socket.createGame;
     window.techninja.actions.joinGame = socket.joinGame;
     window.techninja.actions.loggedIn = socket.loggedIn;
+    // console.log(["User Socket Factory", socket]);
+
 
     return socket;
 });
-

@@ -157,7 +157,7 @@ io.on('connection', function(socket) {
     // });
 
 
-	// List Users And Rooms
+    // List Users And Rooms
     socket.on('sendAll', function(data) {
          var table = '_User',
             data = '';
@@ -324,8 +324,8 @@ io.on('connection', function(socket) {
         console.log("Fuck Stephen Harper!");
     });
 
-    socket.on('quitGame', function(id, playerName) {
-        console.log(["Quit Game", id, playerName]);
+    socket.on('quitGame', function(id, playerId) {
+        console.log(["Quit Game", id, playerId]);
         
 
 
@@ -335,10 +335,10 @@ io.on('connection', function(socket) {
                 , '_res.players', _res.players]);
 
                 _res.players.forEach(function(e,i,a){
-                    console.Log(['Loop Iteration -', i], ['Player', e], ['Array of Players', a]);
-                    console.log(['Does Requester Equal This Player?', e.hasOwnProperty(playerName)]);
+                    console.log(['Loop Iteration -', i], ['Player', e], ['Array of Players', a]);
+                    console.log(['Does Requester Equal This Player?', e.hasOwnProperty(playerId)]);
                     
-                    if (e.hasOwnProperty(playerName)) a.splice(i,1);
+                    if (e.hasOwnProperty(playerId)) a.splice(i,1);
                     console.log(['Deleted User ---->', e]);
                 });
 
